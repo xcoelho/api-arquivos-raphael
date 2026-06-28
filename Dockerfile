@@ -5,8 +5,8 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY . .
-RUN dotnet restore "./webServerText/webServerText/Dockerfile"
-RUN dotnet publish "./webServerText/webServerText/Dockerfile" -c Release -o /app/publish
+RUN dotnet restore "./webServerText/webServerText.csproj"
+RUN dotnet publish "./webServerText/webServerText.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
