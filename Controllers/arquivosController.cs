@@ -7,12 +7,16 @@ namespace MeuServidor.Controllers
     [Route("[controller]")]
     public class ArquivosController : ControllerBase
     {
-        // criar pasta:    { "folder": "teste" }
-        // criar arquivo:  { "folder": "teste", "file": "arquivoTeste" }
-        // add dados:      { "folder": "teste", "file": "arquivoTeste", "content": "qualquer texto ou JSON aqui" }
-        // ler dados:      GET /arquivos/read-file?folder=teste&file=arquivoTeste
-        // apagar pasta:   https://localhost:7264/arquivos/delete-folder?folder=teste
-        // apagar arquivo: https://localhost:7264/arquivos/delete-file?folder=teste&file=arquivoTeste
+        // https://github.com/xcoelho/api-arquivos-raphael
+        // https://dashboard.render.com/web/srv-d90cso37uimc73999ut0/deploys/dep-d90d7gjtqb8s73fn1o2g?r=2026-06-28%4007%3A55%3A50%7E2026-06-28%4007%3A59%3A19
+        // site server:    https://api-arquivos-raphael.onrender.com
+
+        // criar pasta:    POST https://api-arquivos-raphael.onrender.com/arquivos/create-folder { "folder": "teste" }
+        // criar arquivo:  POST https://api-arquivos-raphael.onrender.com/arquivos/create-file   { "folder": "teste", "file": "arquivoTeste" }
+        // add dados:      POST https://api-arquivos-raphael.onrender.com/arquivos/save-text { "folder": "teste", "file": "arquivoTeste", "content": "qualquer texto ou JSON aqui" }
+        // ler dados:      GET https://api-arquivos-raphael.onrender.com/arquivos/read-file?folder=teste&file=arquivoTeste
+        // apagar pasta:   https://api-arquivos-raphael.onrender.com/arquivos/delete-folder?folder=teste
+        // apagar arquivo: https://api-arquivos-raphael.onrender.com/arquivos/delete-file?folder=teste&file=arquivoTeste
 
         [HttpPost("create-folder")]
         public IActionResult CreateFolder([FromBody] JsonElement body)
@@ -103,6 +107,23 @@ namespace MeuServidor.Controllers
 
             System.IO.File.Delete(filePath);
             return Ok($"Arquivo '{file}.txt' apagado de '{folder}'");
+        }
+
+        [HttpGet("list-folders")]
+        public IActionResult ListFolders()
+        {
+            var dirs = Directory.GetDirectories(".");
+            var names = dirs.Select(Path.GetFileName);
+            return Ok(names);
+        }
+
+        [HttpGet("list-files")]
+        public IActionResult ListFiles([FromQuery] string folder)
+        {
+            var dir = folder ?? ".";
+            var files = Directory.GetFiles(dir, "*.txt");
+            var names = files.Select(Path.GetFileName);
+            return Ok(names);
         }
     }
 }
