@@ -79,6 +79,75 @@
     </section>
 </main>
 
+<section class="api-section">
+    <div class="api-section-header">
+        <h3><span>📡</span> Comandos da API</h3>
+        <span class="api-subtitle">Use com curl, Postman ou qualquer cliente HTTP</span>
+    </div>
+    <div class="api-table-wrapper">
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>Método</th>
+                    <th>Rota</th>
+                    <th>Body / Query</th>
+                    <th class="status-col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="badge badge-post">POST</span></td>
+                    <td><code>/arquivos/create-folder</code></td>
+                    <td><code>{ "folder": "nome" }</code></td>
+                    <td class="status-col"><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-post">POST</span></td>
+                    <td><code>/arquivos/create-file</code></td>
+                    <td><code>{ "folder": "...", "file": "..." }</code></td>
+                    <td class="status-col"><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-post">POST</span></td>
+                    <td><code>/arquivos/save-text</code></td>
+                    <td><code>{ "folder": "...", "file": "...", "content": "..." }</code></td>
+                    <td class="status-col"><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-get">GET</span></td>
+                    <td><code>/arquivos/read-file</code></td>
+                    <td><code>?folder=...&amp;file=...</code></td>
+                    <td class="status-col"><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-get">GET</span></td>
+                    <td><code>/arquivos/delete-folder</code></td>
+                    <td><code>?folder=...</code></td>
+                    <td class="status-col"><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-get">GET</span></td>
+                    <td><code>/arquivos/delete-file</code></td>
+                    <td><code>?folder=...&amp;file=...</code></td>
+                    <td class="status-col"><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-get">GET</span></td>
+                    <td><code>/arquivos/list-folders</code></td>
+                    <td><code>—</code></td>
+                    <td class="status-col"><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-get">GET</span></td>
+                    <td><code>/arquivos/list-files</code></td>
+                    <td><code>?folder=...</code></td>
+                    <td class="status-col"><span class="check">✅</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
 <div class="modal-overlay" id="modal-overlay">
     <div class="modal" id="modal"></div>
 </div>
