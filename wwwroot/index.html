@@ -86,10 +86,11 @@
 </main>
 
 <section class="api-section">
-    <div class="api-section-header">
+    <div class="api-section-header" onclick="toggleApiTable()">
         <h3><span>📡</span> Comandos da API</h3>
-        <span class="api-subtitle">Use com curl, Postman ou qualquer cliente HTTP</span>
+        <span class="toggle-icon" id="api-toggle-icon">▶</span>
     </div>
+    <div class="api-body" id="api-body">
     <div class="api-table-wrapper">
         <table class="api-table">
             <thead>
@@ -163,6 +164,7 @@
                 </tr>
             </tbody>
         </table>
+    </div>
     </div>
 </section>
 

@@ -478,10 +478,11 @@ main {
 
 .api-section-header {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 12px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
+    margin-bottom: 0;
+    cursor: pointer;
+    user-select: none;
 }
 
 .api-section-header h3 {
@@ -490,11 +491,31 @@ main {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex: 1;
 }
 
-.api-subtitle {
+.api-section-header .toggle-icon {
     font-size: 12px;
     color: var(--text-muted);
+    transition: transform 0.2s;
+}
+
+.api-section-header .toggle-icon.open {
+    transform: rotate(90deg);
+}
+
+.api-body {
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.25s ease, margin 0.3s ease;
+    max-height: 1000px;
+    opacity: 1;
+    margin-top: 16px;
+}
+
+.api-body.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
 }
 
 .api-table-wrapper {

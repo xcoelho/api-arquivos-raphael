@@ -358,8 +358,16 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+function toggleApiTable() {
+    const body = $('#api-body');
+    const icon = $('#api-toggle-icon');
+    body.classList.toggle('collapsed');
+    icon.classList.toggle('open');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     loadFolders();
+    toggleApiTable();
 
     document.addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 's') {
