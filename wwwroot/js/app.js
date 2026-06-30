@@ -289,6 +289,69 @@ async function deleteFolderAction() {
     );
 }
 
+async function exportAction() {
+    try {
+        const data = await apiCall('GET', '/export');
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast('JSON exportado com sucesso!', 'success');
+    } catch (err) {
+        toast(err.message, 'error');
+    }
+}
+
+async function importAction() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async () => {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async () => {
+            let parsed;
+            try {
+                parsed = JSON.parse(reader.result);
+            } catch {
+                toast('Arquivo JSON inválido', 'error');
+                return;
+            }
+            if (!parsed.data || !Array.isArray(parsed.data)) {
+                toast('JSON não contém a propriedade "data"', 'error');
+                return;
+            }
+            showModal(
+                'Importar Dados',
+                `Isso vai <strong>substituir todos os dados atuais</strong> pelos dados do arquivo. Tem certeza?`,
+                [],
+                async () => {
+                    try {
+                        await apiCall('POST', '/import', parsed);
+                        toast('Dados importados com sucesso!', 'success');
+                        state.currentFolder = null;
+                        state.currentFile = null;
+                        $('#editor-panel').classList.remove('visible');
+                        $('#file-list').classList.remove('visible');
+                        $('#empty-state').style.display = 'flex';
+                        await loadFolders();
+                    } catch (err) {
+                        toast(err.message, 'error');
+                    }
+                }
+            );
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;

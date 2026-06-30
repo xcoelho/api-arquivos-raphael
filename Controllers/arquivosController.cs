@@ -125,5 +125,67 @@ namespace MeuServidor.Controllers
             var names = files.Select(Path.GetFileName);
             return Ok(names);
         }
+
+        [HttpGet("export")]
+        public IActionResult Export()
+        {
+            var dirs = Directory.GetDirectories(".");
+            var data = new List<object>();
+
+            foreach (var dir in dirs)
+            {
+                var folderName = Path.GetFileName(dir);
+                var fileNames = Directory.GetFiles(dir, "*.txt").Select(Path.GetFileNameWithoutExtension);
+                var files = new List<object>();
+
+                foreach (var fileName in fileNames)
+                {
+                    if (fileName == null) continue;
+                    var content = System.IO.File.ReadAllText(Path.Combine(dir, $"{fileName}.txt"));
+                    files.Add(new { name = fileName, content });
+                }
+
+                data.Add(new { folder = folderName, files });
+            }
+
+            return Ok(new { version = 1, exportedAt = DateTime.UtcNow.ToString("o"), data });
+        }
+
+        [HttpPost("import")]
+        public IActionResult Import([FromBody] JsonElement body)
+        {
+            if (!body.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Array)
+                return BadRequest("JSON inválido: propriedade 'data' não encontrada");
+
+            var rootDirs = Directory.GetDirectories(".");
+            foreach (var dir in rootDirs)
+                Directory.Delete(dir, true);
+
+            foreach (var item in data.EnumerateArray())
+            {
+                if (!item.TryGetProperty("folder", out var folderEl) || folderEl.GetString() is not string folderName)
+                    continue;
+
+                var files = item.TryGetProperty("files", out var filesEl) && filesEl.ValueKind == JsonValueKind.Array
+                    ? filesEl.EnumerateArray().ToList()
+                    : new List<JsonElement>();
+
+                foreach (var file in files)
+                {
+                    var fileName = file.TryGetProperty("name", out var n) ? n.GetString() : null;
+                    var content = file.TryGetProperty("content", out var c) ? c.GetString() : "";
+
+                    if (string.IsNullOrEmpty(fileName)) continue;
+
+                    Directory.CreateDirectory(folderName);
+                    System.IO.File.WriteAllText(Path.Combine(folderName, $"{fileName}.txt"), content ?? "");
+                }
+
+                if (files.Count == 0)
+                    Directory.CreateDirectory(folderName);
+            }
+
+            return Ok("Dados importados com sucesso!");
+        }
     }
 }

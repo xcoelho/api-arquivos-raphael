@@ -14,6 +14,12 @@
         Gerenciador de Arquivos
     </h1>
     <div class="header-actions">
+        <button class="btn" onclick="importAction()">
+            <span>📥</span> Importar JSON
+        </button>
+        <button class="btn" onclick="exportAction()">
+            <span>📤</span> Exportar JSON
+        </button>
         <button class="btn btn-primary" onclick="createFolderAction()">
             <span>➕</span> Nova Pasta
         </button>
@@ -141,6 +147,18 @@
                     <td><span class="badge badge-get">GET</span></td>
                     <td><code>/arquivos/list-files</code></td>
                     <td><code>?folder=...</code></td>
+                    <td class="status-col"><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-get">GET</span></td>
+                    <td><code>/arquivos/export</code></td>
+                    <td><code>—</code></td>
+                    <td class="status-col"><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-post">POST</span></td>
+                    <td><code>/arquivos/import</code></td>
+                    <td><code>{ "data": [...] }</code></td>
                     <td class="status-col"><span class="check">✅</span></td>
                 </tr>
             </tbody>
