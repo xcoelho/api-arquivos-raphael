@@ -178,7 +178,8 @@ main {
     position: absolute;
     inset: 40px;
     background: url('/img/logo.png') center / contain no-repeat;
-    opacity: 0.1;
+    opacity: 0.15;
+    filter: brightness(0) invert(1);
     pointer-events: none;
     z-index: 0;
 }
