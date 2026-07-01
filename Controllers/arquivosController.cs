@@ -187,5 +187,42 @@ namespace MeuServidor.Controllers
 
             return Ok("Dados importados com sucesso!");
         }
+
+        [HttpGet("search")]
+        public IActionResult Search([FromQuery] string q)
+        {
+            if (string.IsNullOrWhiteSpace(q))
+                return BadRequest("Parâmetro 'q' não informado");
+
+            var results = new List<object>();
+            var dirs = Directory.GetDirectories(".");
+
+            foreach (var dir in dirs)
+            {
+                var folderName = Path.GetFileName(dir);
+                var files = Directory.GetFiles(dir, "*.txt");
+
+                foreach (var file in files)
+                {
+                    var fileName = Path.GetFileNameWithoutExtension(file);
+                    var content = System.IO.File.ReadAllText(file);
+                    var lowerContent = content.ToLowerInvariant();
+                    var lowerQuery = q.ToLowerInvariant();
+                    var idx = lowerContent.IndexOf(lowerQuery, StringComparison.Ordinal);
+
+                    if (idx < 0) continue;
+
+                    var start = Math.Max(0, idx - 40);
+                    var end = Math.Min(content.Length, idx + q.Length + 40);
+                    var preview = (start > 0 ? "..." : "") +
+                                  content.Substring(start, end - start).Replace("\r", "").Replace("\n", " ") +
+                                  (end < content.Length ? "..." : "");
+
+                    results.Add(new { folder = folderName, file = fileName, preview });
+                }
+            }
+
+            return Ok(results);
+        }
     }
 }

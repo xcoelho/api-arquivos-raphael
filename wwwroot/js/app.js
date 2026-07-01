@@ -358,6 +358,103 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+function highlightText(text, query) {
+    const escaped = escapeHtml(text);
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedQuery})`, 'gi');
+    return escaped.replace(regex, '<em>$1</em>');
+}
+
+async function searchAction() {
+    const q = $('#search-input').value.trim();
+    if (!q) { toast('Digite uma palavra para pesquisar', 'error'); return; }
+
+    try {
+        const results = await apiCall('GET', `/search?q=${encodeURIComponent(q)}`);
+        showSearchResults(q, results);
+    } catch (err) {
+        toast(err.message, 'error');
+    }
+}
+
+function showSearchResults(query, results) {
+    state.currentFolder = null;
+    state.currentFile = null;
+    $('#empty-state').style.display = 'none';
+    $('#file-list').classList.remove('visible');
+    $('#editor-panel').classList.remove('visible');
+    $('#search-results-list').innerHTML = '';
+    $('#search-results-empty').style.display = 'none';
+
+    if (results.length === 0) {
+        $('#search-results-title').textContent = `🔍 0 resultados para "${query}"`;
+        $('#search-results-empty').style.display = 'block';
+    } else {
+        $('#search-results-title').textContent = `🔍 ${results.length} resultado${results.length > 1 ? 's' : ''} para "${query}"`;
+        results.forEach(r => {
+            const item = document.createElement('div');
+            item.className = 'search-result-item';
+            item.innerHTML = `
+                <div class="result-path">📂 ${escapeHtml(r.folder)} / 📄 ${escapeHtml(r.file)}.txt</div>
+                <div class="result-preview">${highlightText(r.preview, query)}</div>
+            `;
+            item.onclick = () => navigateToResult(r.folder, r.file);
+            $('#search-results-list').appendChild(item);
+        });
+    }
+
+    $('#search-results').classList.add('visible');
+}
+
+function navigateToResult(folder, file) {
+    state.currentFolder = folder;
+    state.currentFile = file;
+    $('#search-results').classList.remove('visible');
+    $('#empty-state').style.display = 'none';
+    $('#file-list').classList.add('visible');
+    $('#editor-panel').classList.add('visible');
+    $('#folder-name-title').textContent = folder;
+    $('#editor-filename').textContent = `${file}.txt`;
+
+    loadFolders();
+    $$('.folder-item').forEach(el => {
+        el.classList.toggle('active', el.querySelector('.name')?.textContent === folder);
+    });
+
+    apiCall('GET', `/list-files?folder=${encodeURIComponent(folder)}`).then(files => {
+        state.files = files;
+        const grid = $('#file-grid');
+        grid.querySelectorAll('.file-card').forEach(el => el.remove());
+        state.files.forEach(name => {
+            const card = document.createElement('div');
+            card.className = 'file-card';
+            const fn = name.replace(/\.txt$/i, '');
+            if (fn === file) card.classList.add('active');
+            card.innerHTML = `<span class="icon">📄</span><div class="info"><div class="file-name">${escapeHtml(fn)}</div><div class="file-size">.txt</div></div>`;
+            card.onclick = () => selectFile(fn);
+            grid.appendChild(card);
+        });
+        $('#file-grid-empty').style.display = state.files.length === 0 ? 'block' : 'none';
+    });
+
+    apiCall('GET', `/read-file?folder=${encodeURIComponent(folder)}&file=${encodeURIComponent(file)}`).then(content => {
+        $('#editor-textarea').value = content;
+    }).catch(() => {
+        $('#editor-textarea').value = '';
+    });
+}
+
+function clearSearch() {
+    $('#search-input').value = '';
+    $('#search-results').classList.remove('visible');
+    state.currentFolder = null;
+    state.currentFile = null;
+    $('#empty-state').style.display = 'flex';
+    $('#editor-panel').classList.remove('visible');
+    $('#file-list').classList.remove('visible');
+    loadFolders();
+}
+
 function toggleApiTable() {
     const body = $('#api-body');
     const icon = $('#api-toggle-icon');

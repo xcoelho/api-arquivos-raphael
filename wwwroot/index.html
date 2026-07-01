@@ -13,6 +13,10 @@
         <span>📁</span>
         Gerenciador de Arquivos
     </h1>
+    <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Pesquisar nos arquivos..." onkeydown="if(event.key==='Enter')searchAction()">
+    </div>
     <div class="header-actions">
         <button class="btn" onclick="importAction()">
             <span>📥</span> Importar JSON
@@ -36,6 +40,15 @@
     </aside>
 
     <section class="content-area">
+        <div class="search-results" id="search-results">
+            <div class="search-results-header">
+                <span id="search-results-title"></span>
+                <button class="btn" onclick="clearSearch()">✖ Limpar</button>
+            </div>
+            <div class="search-results-list" id="search-results-list"></div>
+            <div class="search-results-empty" id="search-results-empty">Nenhum resultado encontrado</div>
+        </div>
+
         <div class="empty-state" id="empty-state">
             <div class="icon">📂</div>
             <div class="text">Selecione uma pasta</div>
