@@ -170,6 +170,22 @@ main {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: relative;
+}
+
+.content-area::before {
+    content: '';
+    position: absolute;
+    inset: 40px;
+    background: url('/img/logo.png') center / contain no-repeat;
+    opacity: 0.1;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.content-area > * {
+    position: relative;
+    z-index: 1;
 }
 
 .empty-state {
