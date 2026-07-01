@@ -188,6 +188,24 @@ namespace MeuServidor.Controllers
             return Ok("Dados importados com sucesso!");
         }
 
+        [HttpPut("append-text")]
+        public IActionResult AppendText([FromBody] JsonElement body)
+        {
+            string? folderName = body.GetProperty("folder").GetString();
+            string? fileName = body.GetProperty("file").GetString();
+            string? content = body.GetProperty("content").GetString();
+
+            if (string.IsNullOrEmpty(folderName) || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(content))
+                return BadRequest("Parâmetros 'folder', 'file' e 'content' são obrigatórios");
+
+            Directory.CreateDirectory(folderName);
+            string filePath = Path.Combine(folderName, $"{fileName}.txt");
+
+            System.IO.File.AppendAllText(filePath, content);
+
+            return Ok($"Conteúdo adicionado ao final de '{fileName}.txt' em '{folderName}'");
+        }
+
         [HttpGet("search")]
         public IActionResult Search([FromQuery] string q)
         {
