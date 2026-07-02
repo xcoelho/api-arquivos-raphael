@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MeuServidor.Services;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace MeuServidor.Controllers
@@ -7,48 +8,39 @@ namespace MeuServidor.Controllers
     [Route("[controller]")]
     public class ArquivosController : ControllerBase
     {
-        // https://github.com/xcoelho/api-arquivos-raphael
-        // https://dashboard.render.com/web/srv-d90cso37uimc73999ut0/deploys/dep-d90d7gjtqb8s73fn1o2g?r=2026-06-28%4007%3A55%3A50%7E2026-06-28%4007%3A59%3A19
-        // site server:    https://api-arquivos-raphael.onrender.com
+        private readonly FileDbService _db;
 
-        // criar pasta:    POST https://api-arquivos-raphael.onrender.com/arquivos/create-folder { "folder": "teste" }
-        // criar arquivo:  POST https://api-arquivos-raphael.onrender.com/arquivos/create-file   { "folder": "teste", "file": "arquivoTeste" }
-        // add dados:      POST https://api-arquivos-raphael.onrender.com/arquivos/save-text { "folder": "teste", "file": "arquivoTeste", "content": "qualquer texto ou JSON aqui" }
-        // ler dados:      GET https://api-arquivos-raphael.onrender.com/arquivos/read-file?folder=teste&file=arquivoTeste
-        // apagar pasta:   https://api-arquivos-raphael.onrender.com/arquivos/delete-folder?folder=teste
-        // apagar arquivo: https://api-arquivos-raphael.onrender.com/arquivos/delete-file?folder=teste&file=arquivoTeste
+        public ArquivosController(FileDbService db)
+        {
+            _db = db;
+        }
 
         [HttpPost("create-folder")]
-        public IActionResult CreateFolder([FromBody] JsonElement body)
+        public async Task<IActionResult> CreateFolder([FromBody] JsonElement body)
         {
             string? folderName = body.GetProperty("folder").GetString();
             if (string.IsNullOrEmpty(folderName))
                 return BadRequest("Nome da pasta não informado");
 
-            Directory.CreateDirectory(folderName);
+            await _db.CreateFile(folderName, "__folder__");
             return Ok($"Pasta '{folderName}' criada com sucesso!");
         }
 
         [HttpPost("create-file")]
-        public IActionResult CreateFile([FromBody] JsonElement body)
+        public async Task<IActionResult> CreateFile([FromBody] JsonElement body)
         {
             string? fileName = body.GetProperty("file").GetString();
-            string? folderName = body.TryGetProperty("folder", out var f) ? f.GetString() : ".";
+            var folderName = body.TryGetProperty("folder", out var f) ? f.GetString() ?? "." : ".";
 
             if (string.IsNullOrEmpty(fileName))
                 return BadRequest("Nome do arquivo não informado");
 
-            Directory.CreateDirectory(folderName);
-            string filePath = Path.Combine(folderName, $"{fileName}.txt");
-
-            if (!System.IO.File.Exists(filePath))
-                System.IO.File.WriteAllText(filePath, string.Empty);
-
+            await _db.CreateFile(folderName, fileName);
             return Ok($"Arquivo '{fileName}.txt' criado em '{folderName}'");
         }
 
         [HttpPost("save-text")]
-        public IActionResult SaveText([FromBody] JsonElement body)
+        public async Task<IActionResult> SaveText([FromBody] JsonElement body)
         {
             string? folderName = body.GetProperty("folder").GetString();
             string? fileName = body.GetProperty("file").GetString();
@@ -57,139 +49,83 @@ namespace MeuServidor.Controllers
             if (string.IsNullOrEmpty(folderName) || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(content))
                 return BadRequest("Parâmetros faltando");
 
-            Directory.CreateDirectory(folderName);
-            string filePath = Path.Combine(folderName, $"{fileName}.txt");
-
-            System.IO.File.WriteAllText(filePath, content);
-
+            await _db.SaveText(folderName, fileName, content);
             return Ok($"Arquivo '{fileName}.txt' salvo em '{folderName}'");
         }
 
         [HttpGet("read-file")]
-        public IActionResult ReadFile([FromQuery] string folder, [FromQuery] string file)
+        public async Task<IActionResult> ReadFile([FromQuery] string folder, [FromQuery] string file)
         {
             if (string.IsNullOrEmpty(folder) || string.IsNullOrEmpty(file))
                 return BadRequest("Parâmetros faltando");
 
-            string filePath = Path.Combine(folder, $"{file}.txt");
-
-            if (!System.IO.File.Exists(filePath))
+            var content = await _db.ReadFile(folder, file);
+            if (content == null)
                 return NotFound($"Arquivo '{file}.txt' não encontrado em '{folder}'");
-
-            string content = System.IO.File.ReadAllText(filePath);
 
             return Ok(content);
         }
 
         [HttpGet("delete-folder")]
-        public IActionResult DeleteFolderGet([FromQuery] string folder)
+        public async Task<IActionResult> DeleteFolderGet([FromQuery] string folder)
         {
             if (string.IsNullOrEmpty(folder))
                 return BadRequest("Nome da pasta não informado");
 
-            if (!Directory.Exists(folder))
+            var deleted = await _db.DeleteFolder(folder);
+            if (!deleted)
                 return NotFound($"Pasta '{folder}' não encontrada");
 
-            Directory.Delete(folder, true); // true = apaga recursivamente
             return Ok($"Pasta '{folder}' apagada com sucesso!");
         }
 
         [HttpGet("delete-file")]
-        public IActionResult DeleteFileGet([FromQuery] string folder, [FromQuery] string file)
+        public async Task<IActionResult> DeleteFileGet([FromQuery] string folder, [FromQuery] string file)
         {
             if (string.IsNullOrEmpty(folder) || string.IsNullOrEmpty(file))
                 return BadRequest("Parâmetros faltando");
 
-            string filePath = Path.Combine(folder, $"{file}.txt");
-
-            if (!System.IO.File.Exists(filePath))
+            var deleted = await _db.DeleteFile(folder, file);
+            if (!deleted)
                 return NotFound($"Arquivo '{file}.txt' não encontrado em '{folder}'");
 
-            System.IO.File.Delete(filePath);
             return Ok($"Arquivo '{file}.txt' apagado de '{folder}'");
         }
 
         [HttpGet("list-folders")]
-        public IActionResult ListFolders()
+        public async Task<IActionResult> ListFolders()
         {
-            var dirs = Directory.GetDirectories(".");
-            var names = dirs.Select(Path.GetFileName);
+            var names = await _db.ListFolders();
             return Ok(names);
         }
 
         [HttpGet("list-files")]
-        public IActionResult ListFiles([FromQuery] string folder)
+        public async Task<IActionResult> ListFiles([FromQuery] string folder)
         {
-            var dir = folder ?? ".";
-            var files = Directory.GetFiles(dir, "*.txt");
-            var names = files.Select(Path.GetFileName);
+            var names = await _db.ListFiles(folder ?? ".");
             return Ok(names);
         }
 
         [HttpGet("export")]
-        public IActionResult Export()
+        public async Task<IActionResult> Export()
         {
-            var dirs = Directory.GetDirectories(".");
-            var data = new List<object>();
-
-            foreach (var dir in dirs)
-            {
-                var folderName = Path.GetFileName(dir);
-                var fileNames = Directory.GetFiles(dir, "*.txt").Select(Path.GetFileNameWithoutExtension);
-                var files = new List<object>();
-
-                foreach (var fileName in fileNames)
-                {
-                    if (fileName == null) continue;
-                    var content = System.IO.File.ReadAllText(Path.Combine(dir, $"{fileName}.txt"));
-                    files.Add(new { name = fileName, content });
-                }
-
-                data.Add(new { folder = folderName, files });
-            }
-
+            var data = await _db.ExportAll();
             return Ok(new { version = 1, exportedAt = DateTime.UtcNow.ToString("o"), data });
         }
 
         [HttpPost("import")]
-        public IActionResult Import([FromBody] JsonElement body)
+        public async Task<IActionResult> Import([FromBody] JsonElement body)
         {
             if (!body.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Array)
                 return BadRequest("JSON inválido: propriedade 'data' não encontrada");
 
-            var rootDirs = Directory.GetDirectories(".");
-            foreach (var dir in rootDirs)
-                Directory.Delete(dir, true);
-
-            foreach (var item in data.EnumerateArray())
-            {
-                if (!item.TryGetProperty("folder", out var folderEl) || folderEl.GetString() is not string folderName)
-                    continue;
-
-                var files = item.TryGetProperty("files", out var filesEl) && filesEl.ValueKind == JsonValueKind.Array
-                    ? filesEl.EnumerateArray().ToList()
-                    : new List<JsonElement>();
-
-                foreach (var file in files)
-                {
-                    var fileName = file.TryGetProperty("name", out var n) ? n.GetString() : null;
-                    var content = file.TryGetProperty("content", out var c) ? c.GetString() : "";
-
-                    if (string.IsNullOrEmpty(fileName)) continue;
-
-                    Directory.CreateDirectory(folderName);
-                    System.IO.File.WriteAllText(Path.Combine(folderName, $"{fileName}.txt"), content ?? "");
-                }
-
-                if (files.Count == 0)
-                    Directory.CreateDirectory(folderName);
-            }
-
+            var items = data.EnumerateArray().ToList();
+            await _db.Import(items);
             return Ok("Dados importados com sucesso!");
         }
 
         [HttpPut("append-text")]
-        public IActionResult AppendText([FromBody] JsonElement body)
+        public async Task<IActionResult> AppendText([FromBody] JsonElement body)
         {
             string? folderName = body.GetProperty("folder").GetString();
             string? fileName = body.GetProperty("file").GetString();
@@ -198,48 +134,17 @@ namespace MeuServidor.Controllers
             if (string.IsNullOrEmpty(folderName) || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(content))
                 return BadRequest("Parâmetros 'folder', 'file' e 'content' são obrigatórios");
 
-            Directory.CreateDirectory(folderName);
-            string filePath = Path.Combine(folderName, $"{fileName}.txt");
-
-            System.IO.File.AppendAllText(filePath, content);
-
+            await _db.AppendText(folderName, fileName, content);
             return Ok($"Conteúdo adicionado ao final de '{fileName}.txt' em '{folderName}'");
         }
 
         [HttpGet("search")]
-        public IActionResult Search([FromQuery] string q)
+        public async Task<IActionResult> Search([FromQuery] string q)
         {
             if (string.IsNullOrWhiteSpace(q))
                 return BadRequest("Parâmetro 'q' não informado");
 
-            var results = new List<object>();
-            var dirs = Directory.GetDirectories(".");
-
-            foreach (var dir in dirs)
-            {
-                var folderName = Path.GetFileName(dir);
-                var files = Directory.GetFiles(dir, "*.txt");
-
-                foreach (var file in files)
-                {
-                    var fileName = Path.GetFileNameWithoutExtension(file);
-                    var content = System.IO.File.ReadAllText(file);
-                    var lowerContent = content.ToLowerInvariant();
-                    var lowerQuery = q.ToLowerInvariant();
-                    var idx = lowerContent.IndexOf(lowerQuery, StringComparison.Ordinal);
-
-                    if (idx < 0) continue;
-
-                    var start = Math.Max(0, idx - 40);
-                    var end = Math.Min(content.Length, idx + q.Length + 40);
-                    var preview = (start > 0 ? "..." : "") +
-                                  content.Substring(start, end - start).Replace("\r", "").Replace("\n", " ") +
-                                  (end < content.Length ? "..." : "");
-
-                    results.Add(new { folder = folderName, file = fileName, preview });
-                }
-            }
-
+            var results = await _db.Search(q);
             return Ok(results);
         }
     }

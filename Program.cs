@@ -1,4 +1,6 @@
+using MeuServidor.Services;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +18,14 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1"
     });
 });
+
+var mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI")
+    ?? builder.Configuration.GetConnectionString("MongoDB")
+    ?? "mongodb://localhost:27017";
+var mongoDbName = Environment.GetEnvironmentVariable("MONGODB_DATABASE") ?? "webServerText";
+builder.Services.AddSingleton<IMongoClient>(new MongoClient(mongoUri));
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IMongoClient>().GetDatabase(mongoDbName));
+builder.Services.AddScoped<FileDbService>();
 
 var app = builder.Build();
 
