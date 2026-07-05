@@ -2,6 +2,17 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
+// https://github.com/xcoelho/api-arquivos-raphael
+// https://dashboard.render.com/web/srv-d90cso37uimc73999ut0/deploys/dep-d90d7gjtqb8s73fn1o2g?r=2026-06-28%4007%3A55%3A50%7E2026-06-28%4007%3A59%3A19
+// site server:    https://api-arquivos-raphael.onrender.com
+
+// criar pasta:    POST https://api-arquivos-raphael.onrender.com/arquivos/create-folder { "folder": "teste" }
+// criar arquivo:  POST https://api-arquivos-raphael.onrender.com/arquivos/create-file   { "folder": "teste", "file": "arquivoTeste" }
+// add dados:      POST https://api-arquivos-raphael.onrender.com/arquivos/save-text { "folder": "teste", "file": "arquivoTeste", "content": "qualquer texto ou JSON aqui" }
+// ler dados:      GET https://api-arquivos-raphael.onrender.com/arquivos/read-file?folder=teste&file=arquivoTeste
+// apagar pasta:   https://api-arquivos-raphael.onrender.com/arquivos/delete-folder?folder=teste
+// apagar arquivo: https://api-arquivos-raphael.onrender.com/arquivos/delete-file?folder=teste&file=arquivoTeste
+
 namespace MeuServidor.Controllers
 {
     [ApiController]
