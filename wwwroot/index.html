@@ -3,190 +3,418 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador de Arquivos</title>
+    <title>RC CAVALCANTI | Engenharia Eletrônica e Sistemas Embarcados</title>
+    <!-- Reutiliza variáveis CSS do projeto para coerência perfeita -->
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/home.css">
 </head>
-<body>
+<body class="home-page">
 
-<header>
-    <h1>
-        <span>📁</span>
-        Gerenciador de Arquivos
-    </h1>
-    <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" placeholder="Pesquisar nos arquivos..." onkeydown="if(event.key==='Enter')searchAction()">
-    </div>
-    <div class="header-actions">
-        <button class="btn" onclick="importAction()">
-            <span>📥</span> Importar JSON
-        </button>
-        <button class="btn" onclick="exportAction()">
-            <span>📤</span> Exportar JSON
-        </button>
-        <button class="btn btn-primary" onclick="createFolderAction()">
-            <span>➕</span> Nova Pasta
-        </button>
-    </div>
-</header>
-
-<main>
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <span>Pastas</span>
-            <span class="loading-spinner" id="folder-list-loading" style="display:none"></span>
-        </div>
-        <div class="folder-list" id="folder-list"></div>
-    </aside>
-
-    <section class="content-area">
-        <div class="search-results" id="search-results">
-            <div class="search-results-header">
-                <span id="search-results-title"></span>
-                <button class="btn" onclick="clearSearch()">✖ Limpar</button>
+    <!-- Header / Barra de Navegação -->
+    <header class="home-header">
+        <div class="logo-container">
+            <img src="/img/logo.png" alt="RC CAVALCANTI Logo" class="brand-logo" onerror="this.style.display='none'">
+            <div class="brand-text">
+                <span class="brand-name">RC CAVALCANTI</span>
+                <span class="brand-sub">TECNOLOGIA DE SOFTWARE E HARDWARE</span>
             </div>
-            <div class="search-results-list" id="search-results-list"></div>
-            <div class="search-results-empty" id="search-results-empty">Nenhum resultado encontrado</div>
         </div>
-
-        <div class="empty-state" id="empty-state">
-            <div class="icon">📂</div>
-            <div class="text">Selecione uma pasta</div>
-            <div class="subtext">Clique em uma pasta ao lado para ver seus arquivos</div>
+        <nav class="home-nav">
+            <a href="#hero" class="nav-link active">Início</a>
+            <a href="#servicos" class="nav-link">Serviços</a>
+            <a href="#portfolio" class="nav-link">Portfólio</a>
+            <a href="#sobre" class="nav-link">Sobre</a>
+            <a href="#contato" class="nav-link">Contato</a>
+        </nav>
+        <div class="home-header-actions">
+            <a href="/Curriculo.pdf" target="_blank" class="btn" title="Baixar Currículo">
+                <span>📄</span> Currículo PDF
+            </a>
+            <a href="/gerenciador.html" class="btn btn-primary">
+                <span>📁</span> Gerenciador de Projetos
+            </a>
         </div>
+        <button class="mobile-menu-toggle" id="mobile-toggle" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
 
-        <div class="file-list" id="file-list">
-            <div class="file-list-header">
-                <h2 id="folder-name-title"></h2>
-                <div class="folder-actions">
-                    <button class="btn" onclick="createFileAction()">
-                        <span>➕</span> Novo Arquivo
-                    </button>
-                    <button class="btn btn-danger" onclick="deleteFolderAction()">
-                        <span>🗑</span> Apagar Pasta
-                    </button>
+    <!-- Menu Mobile -->
+    <div class="mobile-menu" id="mobile-menu">
+        <a href="#hero" class="mobile-link">Início</a>
+        <a href="#servicos" class="mobile-link">Serviços</a>
+        <a href="#portfolio" class="mobile-link">Portfólio</a>
+        <a href="#sobre" class="mobile-link">Sobre</a>
+        <a href="#contato" class="mobile-link">Contato</a>
+        <div class="mobile-actions">
+            <a href="/Curriculo.pdf" target="_blank" class="btn">
+                <span>📄</span> Currículo PDF
+            </a>
+            <a href="/gerenciador.html" class="btn btn-primary" style="margin-top: 10px;">
+                <span>📁</span> Gerenciador de Projetos
+            </a>
+        </div>
+    </div>
+
+    <!-- Seção Hero Principal com PCB Interativa -->
+    <section id="hero" class="hero-section">
+        <!-- Canvas para animação de circuitos -->
+        <canvas id="pcb-canvas" class="pcb-background"></canvas>
+        
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="badge-status">
+                    <span class="pulse-dot"></span>
+                    <span>Projetando o Futuro do Hardware</span>
+                </div>
+                <h1 class="hero-title">Transformando Ideias em <span class="text-highlight">Circuitos Reais</span></h1>
+                <p class="hero-subtitle">Engenharia eletrônica avançada com foco em sistemas embarcados de alta performance, internet das coisas (IoT), telemetria inteligente e prototipagem robusta de hardware.</p>
+                <div class="hero-tags">
+                    <span class="hero-tag">#EmbeddedSystems</span>
+                    <span class="hero-tag">#PCBLayout</span>
+                    <span class="hero-tag">#IoT</span>
+                    <span class="hero-tag">#Firmware</span>
+                    <span class="hero-tag">#SmartCities</span>
+                </div>
+                <div class="hero-cta">
+                    <a href="#portfolio" class="btn btn-lg btn-secondary">
+                        <span>🚀</span> Conhecer Projetos
+                    </a>
+                    <a href="/gerenciador.html" class="btn btn-lg btn-primary">
+                        <span>📁</span> Painel de Projetos
+                    </a>
                 </div>
             </div>
-
-            <div style="text-align:center;padding:40px;color:var(--text-muted);display:none" id="file-grid-loading">
-                <div class="loading-spinner" style="width:24px;height:24px;border-width:3px;margin:0 auto 12px"></div>
-                <div style="font-size:13px">Carregando arquivos...</div>
-            </div>
-
-            <div class="file-grid" id="file-grid"></div>
-            <div style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px;display:none" id="file-grid-empty">
-                Nenhum arquivo nesta pasta
-            </div>
-        </div>
-
-        <div class="editor-panel" id="editor-panel">
-            <div class="editor-toolbar">
-                <span class="file-label" id="editor-filename"></span>
-                <div class="editor-actions">
-                    <button class="btn btn-primary" onclick="saveContentAction()">
-                        <span>💾</span> Salvar
-                    </button>
-                    <button class="btn btn-danger" onclick="deleteFileAction()">
-                        <span>🗑</span> Apagar
-                    </button>
+            <div class="hero-visual">
+                <div class="circuit-glow-container">
+                    <div class="microcontroller-card">
+                        <div class="chip-pins left"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                        <div class="chip-core">
+                            <div class="chip-logo">RC</div>
+                            <div class="chip-label">CAVALCANTI</div>
+                            <div class="chip-sub">STM32 / ESP32</div>
+                        </div>
+                        <div class="chip-pins right"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                        <div class="activity-leds">
+                            <span class="led led-blue"></span>
+                            <span class="led led-green"></span>
+                            <span class="led led-orange"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="editor-body">
-                <textarea id="editor-textarea" placeholder="Selecione um arquivo para editar..." spellcheck="false"></textarea>
+        </div>
+        <div class="hero-scroll-indicator">
+            <a href="#servicos" class="scroll-arrow">↓</a>
+        </div>
+    </section>
+
+    <!-- Seção de Serviços -->
+    <section id="servicos" class="section-container">
+        <div class="section-header">
+            <span class="section-tag">O que fazemos</span>
+            <h2 class="section-title">Especialidades de Engenharia</h2>
+            <div class="section-divider"></div>
+        </div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">🔌</div>
+                <h3 class="service-title">Design de PCB & Hardware</h3>
+                <p class="service-text">Layout de placas de circuito impresso multicamadas de alta densidade (HDI) utilizando Altium Designer e KiCad. Projetos otimizados para conformidade eletromagnética (EMC/EMI), integridade de sinais e fabricabilidade industrial (DFM).</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">⚙️</div>
+                <h3 class="service-title">Sistemas Embarcados & Firmware</h3>
+                <p class="service-text">Desenvolvimento de software de baixo nível de alta confiabilidade em linguagem C/C++. Programação Bare-Metal e sistemas operacionais de tempo real (RTOS) para arquiteturas ARM Cortex, ESP32, STM32 e PIC.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">📡</div>
+                <h3 class="service-title">Internet das Coisas (IoT) & Telemetria</h3>
+                <p class="service-text">Arquitetura de rede sem fio e aquisição de dados em tempo real. Implementação de sensores inteligentes e conectividade robusta através de protocolos de longo e curto alcance como Wi-Fi, Bluetooth, LoRaWAN, RFID e redes celulares.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">🏭</div>
+                <h3 class="service-title">Automação & Controle Industrial</h3>
+                <p class="service-text">Desenvolvimento de soluções integradas de hardware e firmware para automação de maquinários, sensoriamento industrial avançado, controle PID térmico e de movimento, e modernização de equipamentos.</p>
             </div>
         </div>
     </section>
-</main>
 
-<section class="api-section">
-    <div class="api-section-header" onclick="toggleApiTable()">
-        <h3><span>📡</span> Comandos da API</h3>
-        <span class="toggle-icon" id="api-toggle-icon">▶</span>
-    </div>
-    <div class="api-body" id="api-body">
-    <div class="api-table-wrapper">
-        <table class="api-table">
-            <thead>
-                <tr>
-                    <th>Método</th>
-                    <th>Rota</th>
-                    <th>Body / Query</th>
-                    <th class="status-col"></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><span class="badge badge-post">POST</span></td>
-                    <td><code>/arquivos/create-folder</code></td>
-                    <td><code>{ "folder": "nome" }</code></td>
-                    <td class="status-col"><span class="check">✅</span></td>
-                </tr>
-                <tr>
-                    <td><span class="badge badge-post">POST</span></td>
-                    <td><code>/arquivos/create-file</code></td>
-                    <td><code>{ "folder": "...", "file": "..." }</code></td>
-                    <td class="status-col"><span class="check">✅</span></td>
-                </tr>
-                <tr>
-                    <td><span class="badge badge-post">POST</span></td>
-                    <td><code>/arquivos/save-text</code></td>
-                    <td><code>{ "folder": "...", "file": "...", "content": "..." }</code></td>
-                    <td class="status-col"><span class="check">✅</span></td>
-                </tr>
-                <tr>
-                    <td><span class="badge badge-get">GET</span></td>
-                    <td><code>/arquivos/read-file</code></td>
-                    <td><code>?folder=...&amp;file=...</code></td>
-                    <td class="status-col"><span class="check">✅</span></td>
-                </tr>
-                <tr>
-                    <td><span class="badge badge-get">GET</span></td>
-                    <td><code>/arquivos/delete-folder</code></td>
-                    <td><code>?folder=...</code></td>
-                    <td class="status-col"><span class="check">✅</span></td>
-                </tr>
-                <tr>
-                    <td><span class="badge badge-get">GET</span></td>
-                    <td><code>/arquivos/delete-file</code></td>
-                    <td><code>?folder=...&amp;file=...</code></td>
-                    <td class="status-col"><span class="check">✅</span></td>
-                </tr>
-                <tr>
-                    <td><span class="badge badge-get">GET</span></td>
-                    <td><code>/arquivos/list-folders</code></td>
-                    <td><code>—</code></td>
-                    <td class="status-col"><span class="check">✅</span></td>
-                </tr>
-                <tr>
-                    <td><span class="badge badge-get">GET</span></td>
-                    <td><code>/arquivos/list-files</code></td>
-                    <td><code>?folder=...</code></td>
-                    <td class="status-col"><span class="check">✅</span></td>
-                </tr>
-                <tr>
-                    <td><span class="badge badge-get">GET</span></td>
-                    <td><code>/arquivos/export</code></td>
-                    <td><code>—</code></td>
-                    <td class="status-col"><span class="check">✅</span></td>
-                </tr>
-                <tr>
-                    <td><span class="badge badge-post">POST</span></td>
-                    <td><code>/arquivos/import</code></td>
-                    <td><code>{ "data": [...] }</code></td>
-                    <td class="status-col"><span class="check">✅</span></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    </div>
-</section>
+    <!-- Seção de Portfólio de Projetos -->
+    <section id="portfolio" class="section-container bg-alt">
+        <div class="section-header">
+            <span class="section-tag">Casos de Sucesso</span>
+            <h2 class="section-title">Projetos Executados</h2>
+            <div class="section-divider"></div>
+            <p class="section-subtitle">Conheça uma seleção de sistemas eletrônicos inovadores desenvolvidos pela RC CAVALCANTI para grandes indústrias, governos e institutos de pesquisa.</p>
+        </div>
+        
+        <div class="portfolio-filters">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="iot">IoT & Cidades Inteligentes</button>
+            <button class="filter-btn" data-filter="embarcados">Sistemas Embarcados</button>
+            <button class="filter-btn" data-filter="automacao">Automação & Indústria</button>
+        </div>
 
-<div class="modal-overlay" id="modal-overlay">
-    <div class="modal" id="modal"></div>
-</div>
+        <div class="portfolio-grid" id="portfolio-grid">
+            
+            <!-- Projeto 1: Medidor do Ar -->
+            <div class="portfolio-item card" data-category="iot">
+                <div class="portfolio-header">
+                    <span class="item-client">PREFEITURA DE FORTALEZA</span>
+                    <span class="item-icon">🍃</span>
+                </div>
+                <h3 class="portfolio-title">Medidor do Índice de Qualidade do Ar</h3>
+                <p class="portfolio-desc">Desenvolvimento de estação de telemetria ambiental urbana para medição inteligente e transmissão sem fio em tempo real dos índices de poluição atmosférica da cidade.</p>
+                <div class="portfolio-tech">
+                    <span>ESP32</span>
+                    <span>Sensores de Gás</span>
+                    <span>IoT</span>
+                    <span>Telemetria</span>
+                </div>
+            </div>
 
-<div class="toast-container" id="toast-container"></div>
+            <!-- Projeto 2: SMD Esmaltec -->
+            <div class="portfolio-item card" data-category="embarcados">
+                <div class="portfolio-header">
+                    <span class="item-client">ESMALTEC / UNIFOR</span>
+                    <span class="item-icon">❄️</span>
+                </div>
+                <h3 class="portfolio-title">SMD - Monitoramento de Defeitos</h3>
+                <p class="portfolio-desc">Sistema eletrônico embarcado inovador de diagnóstico contínuo acoplado a refrigeradores industriais e residenciais para detecção preventiva de falhas elétricas e mecânicas.</p>
+                <div class="portfolio-tech">
+                    <span>Esmaltec</span>
+                    <span>C/C++</span>
+                    <span>Diagnóstico de Falhas</span>
+                    <span>Firmware</span>
+                </div>
+            </div>
 
-<script src="/js/app.js"></script>
+            <!-- Projeto 3: Tornozeleira Eletrônica -->
+            <div class="portfolio-item card" data-category="iot">
+                <div class="portfolio-header">
+                    <span class="item-client">FUNCAP / SEGURANÇA</span>
+                    <span class="item-icon">🔒</span>
+                </div>
+                <h3 class="portfolio-title">Tornozeleira Eletrônica</h3>
+                <p class="portfolio-desc">Desenvolvimento completo de hardware e algoritmo inteligente de ultra-baixo consumo para rastreamento georreferenciado e segurança de detentos.</p>
+                <div class="portfolio-tech">
+                    <span>GPS</span>
+                    <span>GPRS / Celular</span>
+                    <span>Ultra Low Power</span>
+                    <span>ARM</span>
+                </div>
+            </div>
+
+            <!-- Projeto 4: Construção Civil 4.0 -->
+            <div class="portfolio-item card" data-category="iot">
+                <div class="portfolio-header">
+                    <span class="item-client">INOVAFIT / MOTA MACHADO</span>
+                    <span class="item-icon">🏗️</span>
+                </div>
+                <h3 class="portfolio-title">Construção Civil 4.0</h3>
+                <p class="portfolio-desc">Sistema de IoT integrado em canteiros de obras de alta tecnologia para monitoramento de processos, controle logístico e eficiência no uso de materiais de engenharia civil.</p>
+                <div class="portfolio-tech">
+                    <span>IoT</span>
+                    <span>Sensores Sem Fio</span>
+                    <span>Mota Machado</span>
+                    <span>Smart Site</span>
+                </div>
+            </div>
+
+            <!-- Projeto 5: Gelágua Inteligente -->
+            <div class="portfolio-item card" data-category="embarcados">
+                <div class="portfolio-header">
+                    <span class="item-client">ESMALTEC / UNIFOR</span>
+                    <span class="item-icon">💧</span>
+                </div>
+                <h3 class="portfolio-title">Gelágua Inteligente</h3>
+                <p class="portfolio-desc">Placa eletrônica de controle microprocessado para controle inteligente de temperatura, gestão de energia elétrica e interface de toque para purificadores de água avançados.</p>
+                <div class="portfolio-tech">
+                    <span>Controle Térmico</span>
+                    <span>Microcontrolador</span>
+                    <span>Eficiência Energética</span>
+                </div>
+            </div>
+
+            <!-- Projeto 6: SISTRAN / SIEMBS -->
+            <div class="portfolio-item card" data-category="automacao">
+                <div class="portfolio-header">
+                    <span class="item-client">ARMTEC / ROBÓTICA</span>
+                    <span class="item-icon">🤖</span>
+                </div>
+                <h3 class="portfolio-title">SISTRAN & SIEMBS</h3>
+                <p class="portfolio-desc">Desenvolvimento de simuladores de tráfego de veículos pesados para testes de durabilidade mecânica de asfalto e ensaios de compressão triaxial mecânica de solos.</p>
+                <div class="portfolio-tech">
+                    <span>ARMTEC</span>
+                    <span>Aquisição de Sinais</span>
+                    <span>Sensores de Força</span>
+                    <span>Automação</span>
+                </div>
+            </div>
+
+            <!-- Projeto 7: Velocidade por RFID -->
+            <div class="portfolio-item card" data-category="iot">
+                <div class="portfolio-header">
+                    <span class="item-client">PROJETO FUNCAP</span>
+                    <span class="item-icon">🚗</span>
+                </div>
+                <h3 class="portfolio-title">Medição de Velocidade por RFID</h3>
+                <p class="portfolio-desc">Inovador sistema para medição, registro e controle de velocidade em rodovias através do acoplamento eletromagnético de antenas RFID e etiquetas inteligentes veiculares.</p>
+                <div class="portfolio-tech">
+                    <span>RFID</span>
+                    <span>Smart City</span>
+                    <span>Tempo Real</span>
+                    <span>Sinal HF</span>
+                </div>
+            </div>
+
+            <!-- Projeto 8: Maquina de Inspeção Veicular -->
+            <div class="portfolio-item card" data-category="automacao">
+                <div class="portfolio-header">
+                    <span class="item-client">CNPQ / TECHNOVIEW</span>
+                    <span class="item-icon">🛠️</span>
+                </div>
+                <h3 class="portfolio-title">Inspeção Veicular Móvel</h3>
+                <p class="portfolio-desc">Desenvolvimento eletrônico, controle eletrônico e sensoriamento para máquina de inspeção veicular móvel e analisador de gases de escapamento.</p>
+                <div class="portfolio-tech">
+                    <span>CNPq</span>
+                    <span>Analisador de Gases</span>
+                    <span>Painéis de LED</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Seção Sobre o Fundador -->
+    <section id="sobre" class="section-container">
+        <div class="section-header">
+            <span class="section-tag">Quem somos</span>
+            <h2 class="section-title">Sobre o Engenheiro</h2>
+            <div class="section-divider"></div>
+        </div>
+        <div class="about-container">
+            <div class="about-visual">
+                <div class="engineer-shield">
+                    <div class="avatar-fallback">
+                        <span>RC</span>
+                    </div>
+                    <div class="shield-badge">20+ Anos de Exp.</div>
+                </div>
+            </div>
+            <div class="about-content">
+                <h3>Raphael Coelho Cavalcanti</h3>
+                <p class="about-subtitle">Engenheiro Eletrônico (CREA ativo)</p>
+                
+                <p class="about-text">Formado em <strong>Engenharia Eletrônica</strong> pela conceituada Universidade de Fortaleza (UNIFOR) em 2004.1, com ampla formação complementar em telemática e tecnologia da informação, Raphael atua há mais de duas décadas no mercado de pesquisa e desenvolvimento eletrônico.</p>
+                
+                <p class="about-text">Especializado no projeto de hardware robusto e sistemas microprocessados inteligentes, possui amplo histórico de colaboração de sucesso com grandes indústrias nacionais (como a <strong>ESMALTEC</strong>), parcerias de pesquisa acadêmica de ponta e projetos fomentados por agências nacionais de desenvolvimento tecnológico, incluindo <strong>CNPq</strong> e <strong>FUNCAP</strong>.</p>
+                
+                <div class="about-skills">
+                    <div class="skill-pill">💡 Altium & KiCad</div>
+                    <div class="skill-pill">💻 Firmware C/C++</div>
+                    <div class="skill-pill">🔌 PCB Multilayer Layout</div>
+                    <div class="skill-pill">📶 IoT & RF</div>
+                    <div class="skill-pill">⚡ STM32 / ESP32</div>
+                    <div class="skill-pill">🎯 Automação de Precisão</div>
+                </div>
+
+                <div class="about-cta-container">
+                    <a href="/Curriculo.pdf" target="_blank" class="btn btn-primary">
+                        <span>📥</span> Baixar Currículo Completo (PDF)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Contato -->
+    <section id="contato" class="section-container bg-alt">
+        <div class="section-header">
+            <span class="section-tag">Contato</span>
+            <h2 class="section-title">Inicie seu Projeto Eletrônico</h2>
+            <div class="section-divider"></div>
+            <p class="section-subtitle">Tem uma ideia de produto ou precisa de uma consultoria especializada em hardware/firmware? Entre em contato agora mesmo!</p>
+        </div>
+        
+        <div class="contact-container">
+            <div class="contact-info-panel">
+                <div class="info-card">
+                    <span class="info-icon">📞</span>
+                    <div class="info-details">
+                        <h4>Telefone / WhatsApp</h4>
+                        <p><a href="tel:+5585988850094">(85) 9.8885-0094</a></p>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <span class="info-icon">✉️</span>
+                    <div class="info-details">
+                        <h4>E-mail</h4>
+                        <p><a href="mailto:xcoelho@live.com">xcoelho@live.com</a></p>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <span class="info-icon">📍</span>
+                    <div class="info-details">
+                        <h4>Localização</h4>
+                        <p>Fortaleza - Ceará, Brasil</p>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <span class="info-icon">🚗</span>
+                    <div class="info-details">
+                        <h4>Disponibilidade</h4>
+                        <p>Atendimento remoto para todo o Brasil e presencial na Região Metropolitana.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-form-panel card">
+                <form id="home-contact-form" onsubmit="event.preventDefault(); submitContactForm();">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contact-name">Seu Nome</label>
+                            <input type="text" id="contact-name" placeholder="Ex: João Silva" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-email">Seu E-mail</label>
+                            <input type="email" id="contact-email" placeholder="Ex: joao@empresa.com" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-subject">Assunto do Projeto</label>
+                        <input type="text" id="contact-subject" placeholder="Ex: Desenvolvimento de Placa IoT" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-message">Descrição Detalhada do seu Projeto</label>
+                        <textarea id="contact-message" rows="5" placeholder="Descreva sua ideia, requisitos, sensores ou prazos estimados..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block btn-lg" id="contact-submit-btn">
+                        <span>✉️</span> Enviar Mensagem
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer class="home-footer">
+        <div class="footer-bottom">
+            <p>&copy; 2026 RC CAVALCANTI - Serviços de Tecnologia de Software e Hardware. Todos os direitos reservados.</p>
+            <div class="system-status">
+                <span class="status-indicator"></span>
+                <span>API & Servidores de Arquivo Online</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Container para Mensagens Flutuantes -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Scripts de Interatividade e Canvas PCB -->
+    <script src="/js/home.js"></script>
 </body>
 </html>
