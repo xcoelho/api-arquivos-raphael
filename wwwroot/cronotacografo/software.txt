@@ -1,0 +1,16 @@
+- cadastro dos veiculos
+- foto do veiculo nos rolos de ensaio
+- captação dos dados de velocidade e distancia percorrida
+- grafico da velocidade x tempo percorrido
+- relatorio com todos os dados do ensaio como:
+  - velocidade media
+  - velocidade maxima
+  - distancia percorrida
+  - duração do teste
+  - foto do veiculo nos rolos
+  - grafico da velocidade x distancia
+- os dados sao enviados para o INMETRO via http atraves de um XML criptografado
+- modulo GPS para farantir a localização da empresa 
+
+Para mais informações sobre o projeto leias o conteudo dese site: https://webservice.cronotacografo.rbmlq.gov.br/
+

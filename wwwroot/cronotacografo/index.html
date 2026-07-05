@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cronotacografo - Sistema de Ensaio de Tacômetros | CETECH</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-secondary: #111827;
+      --bg-card: #1a2236;
+      --bg-card-hover: #1f2a42;
+      --border-color: #2a3550;
+      --text-primary: #e8edf5;
+      --text-secondary: #8b95a8;
+      --text-muted: #5a6478;
+      --accent-blue: #00a8e8;
+      --accent-cyan: #00d4ff;
+      --accent-green: #00c853;
+      --accent-purple: #7c3aed;
+      --accent-red: #ef4444;
+      --accent-yellow: #fbbf24;
+      --gradient-hero: linear-gradient(135deg, #0a0e17 0%, #111d35 50%, #0a1628 100%);
+      --gradient-accent: linear-gradient(135deg, #00a8e8, #00d4ff);
+      --shadow-lg: 0 20px 60px rgba(0,0,0,0.5);
+      --shadow-card: 0 4px 24px rgba(0,0,0,0.3);
+      --radius: 12px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ==================== NAVBAR ==================== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(10, 14, 23, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(42, 53, 80, 0.5);
+      padding: 0 2rem;
+      transition: all 0.3s ease;
+    }
+
+    .navbar.scrolled {
+      background: rgba(10, 14, 23, 0.95);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 70px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .nav-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--gradient-accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 18px;
+      color: var(--bg-primary);
+    }
+
+    .nav-logo-text {
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-logo-text span {
+      color: var(--accent-blue);
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gradient-accent);
+      transition: width 0.3s ease;
+      border-radius: 2px;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 5px;
+    }
+
+    .nav-toggle span {
+      width: 25px;
+      height: 2px;
+      background: var(--text-primary);
+      transition: all 0.3s ease;
+      border-radius: 2px;
+    }
+
+    /* ==================== HERO ==================== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--gradient-hero);
+      position: relative;
+      overflow: hidden;
+      padding: 2rem;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(0,168,232,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: pulse 8s ease-in-out infinite;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(0,200,83,0.06) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: pulse 10s ease-in-out infinite reverse;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(42,53,80,0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(42,53,80,0.15) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+    }
+
+    .hero-content {
+      text-align: center;
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,168,232,0.1);
+      border: 1px solid rgba(0,168,232,0.3);
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--accent-cyan);
+      margin-bottom: 2rem;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      margin-bottom: 1.5rem;
+      animation: fadeInUp 0.8s ease 0.1s both;
+    }
+
+    .hero h1 .gradient-text {
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      font-weight: 400;
+      animation: fadeInUp 0.8s ease 0.2s both;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeInUp 0.8s ease 0.3s both;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--gradient-accent);
+      color: var(--bg-primary);
+      box-shadow: 0 4px 20px rgba(0,168,232,0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,168,232,0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.05);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin-top: 4rem;
+      animation: fadeInUp 0.8s ease 0.4s both;
+    }
+
+    .hero-stat {
+      text-align: center;
+    }
+
+    .hero-stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .hero-stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================== SECTIONS ==================== */
+    .section {
+      padding: 6rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-tag {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 1rem;
+    }
+
+    .section-desc {
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 1.05rem;
+    }
+
+    /* ==================== ABOUT ==================== */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .about-image {
+      position: relative;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .about-image img {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .about-image-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 2rem;
+      background: linear-gradient(transparent, rgba(10,14,23,0.9));
+    }
+
+    .about-image-overlay h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .about-image-overlay p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .about-text h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .about-text p {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+    }
+
+    .about-features {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .about-feature {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(0,168,232,0.05);
+      border: 1px solid rgba(0,168,232,0.15);
+      border-radius: var(--radius);
+      transition: all 0.3s ease;
+    }
+
+    .about-feature:hover {
+      background: rgba(0,168,232,0.1);
+      border-color: rgba(0,168,232,0.3);
+      transform: translateX(4px);
+    }
+
+    .about-feature-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(0,168,232,0.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .about-feature span {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* ==================== FEATURES ==================== */
+    .features-section {
+      background: var(--bg-secondary);
+      padding: 6rem 0;
+    }
+
+    .features-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-accent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0,168,232,0.3);
+      box-shadow: var(--shadow-card);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      width: 56px;
+      height: 56px;
+      background: rgba(0,168,232,0.1);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon {
+      background: rgba(0,168,232,0.2);
+      transform: scale(1.1);
+    }
+
+    .feature-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-card p {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    /* ==================== HARDWARE ==================== */
+    .hardware-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .hardware-item {
+      position: relative;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.4s ease;
+      aspect-ratio: 4/3;
+    }
+
+    .hardware-item:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0,168,232,0.4);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+
+    .hardware-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .hardware-item:hover img {
+      transform: scale(1.05);
+    }
+
+    .hardware-item-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(transparent 50%, rgba(10,14,23,0.95));
+      display: flex;
+      align-items: flex-end;
+      padding: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .hardware-item:hover .hardware-item-overlay {
+      opacity: 1;
+    }
+
+    .hardware-item-overlay h4 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .hardware-item-overlay p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .hardware-specs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .spec-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .spec-card:hover {
+      border-color: rgba(0,168,232,0.3);
+      background: var(--bg-card-hover);
+    }
+
+    .spec-icon {
+      width: 42px;
+      height: 42px;
+      background: rgba(0,168,232,0.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .spec-info h4 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .spec-info p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ==================== SOFTWARE SCREENS ==================== */
+    .screens-section {
+      background: var(--bg-secondary);
+      padding: 6rem 0;
+    }
+
+    .screens-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .screens-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .screen-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all 0.4s ease;
+      cursor: pointer;
+    }
+
+    .screen-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0,168,232,0.3);
+      box-shadow: var(--shadow-card);
+    }
+
+    .screen-card-image {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 16/10;
+    }
+
+    .screen-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .screen-card:hover .screen-card-image img {
+      transform: scale(1.05);
+    }
+
+    .screen-card-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0,168,232,0.9);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .screen-card-body {
+      padding: 1.25rem;
+    }
+
+    .screen-card-body h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .screen-card-body p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ==================== PROCESS / TIMELINE ==================== */
+    .process-timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      position: relative;
+      margin-top: 3rem;
+    }
+
+    .process-timeline::before {
+      content: '';
+      position: absolute;
+      top: 32px;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: var(--border-color);
+    }
+
+    .process-step {
+      text-align: center;
+      position: relative;
+      padding: 0 1rem;
+    }
+
+    .process-step-number {
+      width: 64px;
+      height: 64px;
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      position: relative;
+      z-index: 2;
+      transition: all 0.3s ease;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .process-step:hover .process-step-number {
+      background: var(--accent-blue);
+      color: var(--bg-primary);
+      border-color: var(--accent-blue);
+      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(0,168,232,0.4);
+    }
+
+    .process-step h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .process-step p {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ==================== SPECS TABLE ==================== */
+    .specs-table-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .specs-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .specs-table th {
+      text-align: left;
+      padding: 1rem 1.5rem;
+      background: rgba(0,168,232,0.08);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-blue);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .specs-table td {
+      padding: 0.85rem 1.5rem;
+      border-bottom: 1px solid rgba(42,53,80,0.5);
+      font-size: 0.9rem;
+    }
+
+    .specs-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .specs-table tr:hover td {
+      background: rgba(0,168,232,0.03);
+    }
+
+    .specs-table td:first-child {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .specs-table td:last-child {
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+    }
+
+    /* ==================== FOOTER ==================== */
+    .footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      padding: 3rem 2rem;
+      margin-top: 4rem;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 3rem;
+    }
+
+    .footer-brand h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-brand h3 span {
+      color: var(--accent-blue);
+    }
+
+    .footer-brand p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      max-width: 350px;
+    }
+
+    .footer-links h4 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .footer-links ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent-blue);
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 2rem auto 0;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .footer-bottom a {
+      color: var(--accent-blue);
+      text-decoration: none;
+    }
+
+    /* ==================== LIGHTBOX ==================== */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(10px);
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      cursor: pointer;
+    }
+
+    .lightbox.active {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: 90%;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      animation: lightboxIn 0.3s ease;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      width: 44px;
+      height: 44px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s ease;
+    }
+
+    .lightbox-close:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .lightbox-caption {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    @keyframes lightboxIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* ==================== SCROLL ANIMATIONS ==================== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-delay-5 { transition-delay: 0.5s; }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1024px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .hardware-gallery {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .process-timeline {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+      }
+
+      .process-timeline::before {
+        display: none;
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: rgba(10,14,23,0.98);
+        flex-direction: column;
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--border-color);
+        gap: 1rem;
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .nav-toggle {
+        display: flex;
+      }
+
+      .hero-stats {
+        gap: 1.5rem;
+      }
+
+      .hero-stat-value {
+        font-size: 1.5rem;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hardware-gallery {
+        grid-template-columns: 1fr;
+      }
+
+      .screens-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .process-timeline {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#hero" class="nav-logo">
+        <div class="nav-logo-icon">CT</div>
+        <div class="nav-logo-text">CRONO<span>TACOGRAFO</span></div>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="/">← Voltar</a></li>
+        <li><a href="#about">Sobre</a></li>
+        <li><a href="#features">Funcionalidades</a></li>
+        <li><a href="#hardware">Hardware</a></li>
+        <li><a href="#software">Software</a></li>
+        <li><a href="#process">Processo</a></li>
+        <li><a href="#specs">Especificações</a></li>
+      </ul>
+      <div class="nav-toggle" id="navToggle" onclick="toggleNav()">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-badge">Sistema Certificado pelo INMETRO</div>
+      <h1>
+        <span class="gradient-text">CRONOTACOGRAFO</span><br>
+        Módulo de Ensaio
+      </h1>
+      <p class="hero-subtitle">
+        Sistema completo para calibração e ensaio de tacômetros veiculares.
+        Captura de dados, gráficos em tempo real e envio criptografado ao INMETRO.
+      </p>
+      <div class="hero-buttons">
+        <a href="#features" class="btn btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 16 16 12 12 8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Ver Funcionalidades
+        </a>
+        <a href="#hardware" class="btn btn-secondary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Ver Hardware
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value">4</div>
+          <div class="hero-stat-label">Etapas de Ensaio</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">GPS</div>
+          <div class="hero-stat-label">Rastreamento</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">XML</div>
+          <div class="hero-stat-label">Criptografado</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">ESP32</div>
+          <div class="hero-stat-label">Microcontrolador</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="section" id="about">
+    <div class="about-grid">
+      <div class="about-image reveal">
+        <img src="foto_da_maquina.jpeg" alt="Console CETECH com rolos de ensaio" loading="lazy">
+        <div class="about-image-overlay">
+          <h3>Estação de Ensaio CETECH</h3>
+          <p>Console de controle + dinamômetro de rolos</p>
+        </div>
+      </div>
+      <div class="about-text">
+        <span class="section-tag reveal">// Sobre o Sistema</span>
+        <h2 class="reveal reveal-delay-1">Ensaio de Tacômetros com Precisão Certificada</h2>
+        <p class="reveal reveal-delay-2">
+          O Cronotacografo é um sistema desenvolvido para realizar ensaios de tacômetros veiculares,
+          garantindo a conformidade com as normas do INMETRO. O sistema captura dados de velocidade
+          e distância percorrida durante o ensaio, gerando relatórios completos com gráficos e
+          resultados.
+        </p>
+        <p class="reveal reveal-delay-3">
+          O veículo é posicionado sobre rolos de ensaio (dinamômetro) e o motorista é orientado a
+          manter uma velocidade específica. O sistema registra todas as variáveis e envia os dados
+          criptografados ao INMETRO via HTTP.
+        </p>
+        <div class="about-features reveal reveal-delay-4">
+          <div class="about-feature">
+            <div class="about-feature-icon">🚗</div>
+            <span>Cadastro completo de veículos (placa, RENAVAM, pneu)</span>
+          </div>
+          <div class="about-feature">
+            <div class="about-feature-icon">📡</div>
+            <span>Módulo GPS para verificação de localização da empresa</span>
+          </div>
+          <div class="about-feature">
+            <div class="about-feature-icon">🔐</div>
+            <span>Envio criptografado de dados ao INMETRO via HTTP</span>
+          </div>
+          <div class="about-feature">
+            <div class="about-feature-icon">📊</div>
+            <span>Gráficos de velocidade x tempo e distância</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features-section" id="features">
+    <div class="features-container">
+      <div class="section-header">
+        <span class="section-tag reveal">// Funcionalidades</span>
+        <h2 class="section-title reveal reveal-delay-1">Software Completo para Ensaio</h2>
+        <p class="section-desc reveal reveal-delay-2">
+          Todas as ferramentas necessárias para realizar, registrar e enviar os ensaios de tacômetros.
+        </p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon">📋</div>
+          <h3>Cadastro de Veículos</h3>
+          <p>Registro completo com placa, RENAVAM, medida do pneu e código GRU. Busca e validação de dados integrados.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-icon">📷</div>
+          <h3>Foto do Veículo</h3>
+          <p>Captura automática da foto do veículo posicionado nos rolos de ensaio para documentation do teste.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-icon">⚡</div>
+          <h3>Captação de Dados</h3>
+          <p>Leitura em tempo real de velocidade (Km/h) e distância percorrida (metros) durante o ensaio.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-3">
+          <div class="feature-icon">📈</div>
+          <h3>Gráfico em Tempo Real</h3>
+          <p>Gráfico de velocidade x tempo com faixas de tolerância visualizadas durante todo o processo de ensaio.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-4">
+          <div class="feature-icon">📄</div>
+          <h3>Relatório Completo</h3>
+          <p>Documento com velocidade média, máxima, desvio padrão, distância percorrida, duração e gráfico do ensaio.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-5">
+          <div class="feature-icon">🌐</div>
+          <h3>Envio ao INMETRO</h3>
+          <p>Dados enviados via HTTP para o webservice do INMETRO em XML criptografado, garantindo integridade.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon">🛰️</div>
+          <h3>Módulo GPS</h3>
+          <p>Verificação da localização geográfica da empresa para garantir a autenticidade do ensaio.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-icon">⚙️</div>
+          <h3>Controle da Rampa</h3>
+          <p>Controle eletrônico da rampa de posicionamento (subir/descer) com interface visual intuitiva.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-icon">🔧</div>
+          <h3>Calibração de Sensores</h3>
+          <p>Procedimento de calibração com trena laser (ILDM-150) e encoder, com cálculo automático de erro.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HARDWARE -->
+  <section class="section" id="hardware">
+    <div class="section-header">
+      <span class="section-tag reveal">// Hardware</span>
+      <h2 class="section-title reveal reveal-delay-1">Componentes do Sistema</h2>
+      <p class="section-desc reveal reveal-delay-2">
+        Hardware robusto desenvolvido para ambiente industrial e speciﬁcado para alta precisão.
+      </p>
+    </div>
+
+    <div class="hardware-gallery">
+      <div class="hardware-item reveal" onclick="openLightbox('foto_da_maquina.jpeg', 'Console CETECH com estação de ensaio')">
+        <img src="foto_da_maquina.jpeg" alt="Console CETECH" loading="lazy">
+        <div class="hardware-item-overlay">
+          <div>
+            <h4>Console de Controle</h4>
+            <p>Estação completa CETECH</p>
+          </div>
+        </div>
+      </div>
+      <div class="hardware-item reveal reveal-delay-1" onclick="openLightbox('foto_dos_rolos.jpeg', 'Rolos do dinamômetro de ensaio')">
+        <img src="foto_dos_rolos.jpeg" alt="Rolos de ensaio" loading="lazy">
+        <div class="hardware-item-overlay">
+          <div>
+            <h4>Rolos de Ensaio</h4>
+            <p>Dinamômetro veicular</p>
+          </div>
+        </div>
+      </div>
+      <div class="hardware-item reveal reveal-delay-2" onclick="openLightbox('pci.jpeg', 'Placa de controle eletrônico CETECH')">
+        <img src="pci.jpeg" alt="Placa CETECH" loading="lazy">
+        <div class="hardware-item-overlay">
+          <div>
+            <h4>Placa Eletrônica</h4>
+            <p>ESP32 + GPS + RS485</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hardware-specs">
+      <div class="spec-card reveal">
+        <div class="spec-icon">🧠</div>
+        <div class="spec-info">
+          <h4>Microcontrolador</h4>
+          <p>ESP32-WROOM-32</p>
+        </div>
+      </div>
+      <div class="spec-card reveal reveal-delay-1">
+        <div class="spec-icon">📡</div>
+        <div class="spec-info">
+          <h4>GPS</h4>
+          <p>NEO-6M (GY-GPS6MV2)</p>
+        </div>
+      </div>
+      <div class="spec-card reveal reveal-delay-2">
+        <div class="spec-icon">🔌</div>
+        <div class="spec-info">
+          <h4>Comunicação</h4>
+          <p>RS485 + MAX485</p>
+        </div>
+      </div>
+      <div class="spec-card reveal reveal-delay-3">
+        <div class="spec-icon">⚡</div>
+        <div class="spec-info">
+          <h4>Alimentação</h4>
+          <p>LM2560 (12V → 5V/3.3V)</p>
+        </div>
+      </div>
+      <div class="spec-card reveal reveal-delay-4">
+        <div class="spec-icon">🔲</div>
+        <div class="spec-info">
+          <h4>Relés</h4>
+          <p>3x Relé (controle rampa)</p>
+        </div>
+      </div>
+      <div class="spec-card reveal reveal-delay-5">
+        <div class="spec-icon">📏</div>
+        <div class="spec-info">
+          <h4>Trena Laser</h4>
+          <p>ILDM-150 (certiﬁcada)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOFTWARE SCREENS -->
+  <section class="screens-section" id="software">
+    <div class="screens-container">
+      <div class="section-header">
+        <span class="section-tag reveal">// Interface</span>
+        <h2 class="section-title reveal reveal-delay-1">Telas do Software</h2>
+        <p class="section-desc reveal reveal-delay-2">
+          Interface completa e intuitiva para todas as etapas do ensaio.
+        </p>
+      </div>
+      <div class="screens-grid">
+        <div class="screen-card reveal" onclick="openLightbox('tela_principal.png', 'Tela Principal - Entrada de dados do veículo')">
+          <div class="screen-card-image">
+            <img src="tela_principal.png" alt="Tela Principal" loading="lazy">
+            <span class="screen-card-badge">Principal</span>
+          </div>
+          <div class="screen-card-body">
+            <h3>Tela Principal</h3>
+            <p>Entrada de dados do veículo (placa, RENAVAM, pneu, GRU), status de conexão GPS e controle da rampa.</p>
+          </div>
+        </div>
+        <div class="screen-card reveal reveal-delay-1" onclick="openLightbox('grafico_do_ensaio.png', 'Gráfico do Ensaio - Velocidade em tempo real')">
+          <div class="screen-card-image">
+            <img src="grafico_do_ensaio.png" alt="Gráfico do Ensaio" loading="lazy">
+            <span class="screen-card-badge">Tempo Real</span>
+          </div>
+          <div class="screen-card-body">
+            <h3>Gráfico do Ensaio</h3>
+            <p>Monitoramento em tempo real com velocidade (Km/h), distância (metros), tempo e gráfico com faixas de tolerância.</p>
+          </div>
+        </div>
+        <div class="screen-card reveal reveal-delay-2" onclick="openLightbox('tela_resultado.png', 'Resultado do Ensaio - Dados completos')">
+          <div class="screen-card-image">
+            <img src="tela_resultado.png" alt="Tela Resultado" loading="lazy">
+            <span class="screen-card-badge">Resultado</span>
+          </div>
+          <div class="screen-card-body">
+            <h3>Resultado do Ensaio</h3>
+            <p>Medida do pneu, velocidade máxima e média, desvio padrão e distância percorrida. Opção de gerar relatório.</p>
+          </div>
+        </div>
+        <div class="screen-card reveal reveal-delay-3" onclick="openLightbox('tela_config.png', 'Configurações do Sistema')">
+          <div class="screen-card-image">
+            <img src="tela_config.png" alt="Configurações" loading="lazy">
+            <span class="screen-card-badge">Config</span>
+          </div>
+          <div class="screen-card-body">
+            <h3>Configurações do Sistema</h3>
+            <p>Portas COM (PCI, trena), URLs do webservice INMETRO, parâmetros de calibração e timeout.</p>
+          </div>
+        </div>
+        <div class="screen-card reveal reveal-delay-4" onclick="openLightbox('tela_cadastro_empresa.png', 'Cadastro da Empresa')">
+          <div class="screen-card-image">
+            <img src="tela_cadastro_empresa.png" alt="Cadastro Empresa" loading="lazy">
+            <span class="screen-card-badge">Empresa</span>
+          </div>
+          <div class="screen-card-body">
+            <h3>Cadastro da Empresa</h3>
+            <p>Dados da empresa: razão social, CNPJ, endereço, cidade. Upload do logo para identificação.</p>
+          </div>
+        </div>
+        <div class="screen-card reveal reveal-delay-5" onclick="openLightbox('tela_calibração.png', 'Calibração dos Sensores')">
+          <div class="screen-card-image">
+            <img src="tela_calibração.png" alt="Calibração" loading="lazy">
+            <span class="screen-card-badge">Calibração</span>
+          </div>
+          <div class="screen-card-body">
+            <h3>Calibração dos Sensores</h3>
+            <p>Calibração com trena laser (ILDM-150) e encoder. Cálculo automático de erro entre medidas (&lt; 0,7%).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="section" id="process">
+    <div class="section-header">
+      <span class="section-tag reveal">// Processo</span>
+      <h2 class="section-title reveal reveal-delay-1">Etapas do Ensaio</h2>
+      <p class="section-desc reveal reveal-delay-2">
+        O ensaio é dividido em 4 estágios sequenciais, cada um com uma velocidade alvo específica.
+      </p>
+    </div>
+
+    <div class="process-timeline">
+      <div class="process-step reveal">
+        <div class="process-step-number">01</div>
+        <h4>Cadastro</h4>
+        <p>Registro do veículo com placa, RENAVAM, medida do pneu e código GRU. Verificação do GPS.</p>
+      </div>
+      <div class="process-step reveal reveal-delay-1">
+        <div class="process-step-number">02</div>
+        <h4>Posicionamento</h4>
+        <p>Veículo sobre os rolos do dinamômetro. Controle da rampa para subir e posicionar corretamente.</p>
+      </div>
+      <div class="process-step reveal reveal-delay-2">
+        <div class="process-step-number">03</div>
+        <h4>Ensaio</h4>
+        <p>Motorista mantém velocidade alvo. Sistema captura dados em tempo real por 4 estágios.</p>
+      </div>
+      <div class="process-step reveal reveal-delay-3">
+        <div class="process-step-number">04</div>
+        <h4>Relatório</h4>
+        <p>Geração do relatório com resultados e envio criptografado ao INMETRO via XML/HTTP.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPECS -->
+  <section class="section" id="specs">
+    <div class="section-header">
+      <span class="section-tag reveal">// Especificações</span>
+      <h2 class="section-title reveal reveal-delay-1">Parâmetros Técnicos</h2>
+    </div>
+
+    <div class="specs-table-wrapper reveal">
+      <table class="specs-table">
+        <thead>
+          <tr>
+            <th>Parâmetro</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Distância por Pulso</td>
+            <td>1,75 mm</td>
+          </tr>
+          <tr>
+            <td>Tempo da Rampa</td>
+            <td>3 segundos</td>
+          </tr>
+          <tr>
+            <td>Timeout SBuffer</td>
+            <td>100 ms</td>
+          </tr>
+          <tr>
+            <td>Conversão Km</td>
+            <td>2,1 cte</td>
+          </tr>
+          <tr>
+            <td>Microcontrolador</td>
+            <td>ESP32-WROOM-32</td>
+          </tr>
+          <tr>
+            <td>Módulo GPS</td>
+            <td>NEO-6M (GY-GPS6MV2)</td>
+          </tr>
+          <tr>
+            <td>Comunicação Serial</td>
+            <td>RS485 (MAX485)</td>
+          </tr>
+          <tr>
+            <td>Trena de Calibração</td>
+            <td>ILDM-150 (2413/20)</td>
+          </tr>
+          <tr>
+            <td>Nº Série Trena</td>
+            <td>150705110</td>
+          </tr>
+          <tr>
+            <td>Erro Máximo Permitido</td>
+            <td>&lt; 0,7%</td>
+          </tr>
+          <tr>
+            <td>Tipo de Gráfico</td>
+            <td>Linha / 3D</td>
+          </tr>
+          <tr>
+            <td>Webservice INMETRO</td>
+            <td>https://webservice.cronotacografo.rbmlq.gov.br</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <h3>CRONO<span>TACOGRAFO</span></h3>
+        <p>
+          Sistema de ensaio de tacômetros veiculares desenvolvido para calibração certificada pelo INMETRO.
+          Hardware e software CETECH.
+        </p>
+      </div>
+      <div class="footer-links">
+        <h4>Navegação</h4>
+        <ul>
+          <li><a href="#about">Sobre o Sistema</a></li>
+          <li><a href="#features">Funcionalidades</a></li>
+          <li><a href="#hardware">Hardware</a></li>
+          <li><a href="#software">Software</a></li>
+          <li><a href="#specs">Especificações</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Links</h4>
+        <ul>
+          <li><a href="https://webservice.cronotacografo.rbmlq.gov.br/" target="_blank" rel="noopener">Webservice INMETRO</a></li>
+          <li><a href="#">Suporte Técnico</a></li>
+          <li><a href="#">Documentação</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 CETECH - RC Cavalcanti Hardware & Software. Todos os direitos reservados.</span>
+      <span>Desenvolvido com precisão para o INMETRO</span>
+    </div>
+  </footer>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <button class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
+    <img id="lightboxImg" src="" alt="">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+
+  <script>
+    // ==================== NAVBAR SCROLL ====================
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ==================== MOBILE NAV TOGGLE ====================
+    function toggleNav() {
+      document.getElementById('navLinks').classList.toggle('active');
+    }
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.getElementById('navLinks').classList.remove('active');
+      });
+    });
+
+    // ==================== SCROLL REVEAL ====================
+    const revealElements = document.querySelectorAll('.reveal');
+
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    revealElements.forEach(el => revealObserver.observe(el));
+
+    // ==================== LIGHTBOX ====================
+    function openLightbox(src, caption) {
+      const lightbox = document.getElementById('lightbox');
+      const img = document.getElementById('lightboxImg');
+      const cap = document.getElementById('lightboxCaption');
+      img.src = src;
+      cap.textContent = caption;
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox(e) {
+      if (e.target === document.getElementById('lightbox') || e.target.classList.contains('lightbox-close')) {
+        document.getElementById('lightbox').classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.getElementById('lightbox').classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+
+    // ==================== COUNTER ANIMATION ====================
+    function animateCounters() {
+      document.querySelectorAll('.hero-stat-value').forEach(el => {
+        const text = el.textContent;
+        if (/^\d+$/.test(text)) {
+          const target = parseInt(text);
+          let current = 0;
+          const increment = target / 30;
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              el.textContent = target;
+              clearInterval(timer);
+            } else {
+              el.textContent = Math.floor(current);
+            }
+          }, 50);
+        }
+      });
+    }
+
+    const heroObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounters();
+          heroObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.5 });
+
+    const heroStats = document.querySelector('.hero-stats');
+    if (heroStats) heroObserver.observe(heroStats);
+  </script>
+</body>
+</html>
