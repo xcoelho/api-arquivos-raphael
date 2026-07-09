@@ -1,0 +1,48 @@
+## Efetuar um ensaio
+
+# 1º Passo (Flags)
+
+Ao ligar o software primeiro o operador de visualizar se o sitesma está todo operante verificando os tres flags indicados na foto flags.png:
+
+- flag 1: identifica se o software tem comunicação serial com a placa de controle;
+- flag 2: indentifica se o GPS já conseguiu pegar os dados da localização;
+- flag 3: identifica se a chave token foi identificada pelo sistema.
+
+Com essas 3 flag ok, o operador já pode iniciar o ensaio.
+
+# 2º Passo (Configurações)
+
+Primeiramente, antes de iniciar o ensaio pela primeira vez, o operador de fazer a configuração do sistema, que em tese, será feita apensa uma vez.
+primeiro o operador deve enstra na tela de configuração clicando no botão mostrado na figura buttonConfig.png e irá aparecer a tela mostrada na figura telaConfigSistema.png. Alguns dados são travados e so podem ser configurados pela empresa dono do sistema. Vamos descrever cada campo:
+
+- 1 CAMERA IP: Aqui deve ser colocado o link da camera que será usado, o operador deve colocar exatamente o ip que foi configurado a camera IP
+- 2 PORTA COM PCI: Deve escolher a porta com gerada pela placa de controle
+- 3 PORTA COM TRENA: Deve escolher a porta com gerado pela Trena Bluetooth
+- 4 URL SITE ENSAIO: uso somente pelo administrador do sistema
+- 5 URL SITE VALIDAÇÂO: uso somente pelo administrador do sistema
+- 6 DISTANIA POR PULSO: uso somente pelo administrador do sistema
+- 7 DTEMPO RAMPA: Aqui o operador deve colocar o tempo em segundos que o motos do elevador do rolo deve fiar ligado ao clicar o botão
+- 8 TIME OUT SBUFFER: uso somente pelo administrador do sistema
+
+depois da configuração das portas com e da trena, o operador deve cadastrar os dados da empresa e o logo para aparecer nos relatorios do ensaio. a tela do cadastro da empresa esta mostrado na figura telaConfigCad.png
+uma vez cadastrado os dados da empresa, o operador pode ir na aba CALIBRAÇÂO DOS SENSORES figura telaConfigCalib.png para visualizar os dados enviados pela placa de controle para ver se rodos os sensores estão funcionando perfeitamente e se a maquina está mostrando os valores corretamente. Nessa etapa o operador pode colocar o veiculo no rolo, baixar os elevadores no botão vermelho e acelerar o veicula em velocidades de até 50km/h para ver se está batendo com a velocidade do sistema. Feito isso e estamdo tudo OK o operador já pode iniciar um Ensaio.
+
+# 3º Passo (Ensaio)
+
+O operador deve cadastrar o veículo na tela de cadastro que pode ser acessado clicando no botão mostrado na figura buttonCad.png.
+A tela de cadastro deve aparecer telaCadastro.png
+Depois de inserir todos o dados corretamente o operador deve salvar od dados , e esses dados irão para o banco de dados e ira mostrar no gridview ao lado.
+Apos inserir os dados do veiculo, o operador deve ir na tela principal do program telaPrincipal.png e posicionar a camera de tal maneira que apareça a traseira do veículo, contendo a placa e os pneus nos rolos, para garantir que o veiculo está realmente na platforma de ensaio. Ao clicar na tela do video, o video irá se expandir na tela toda para facilitar a visualização, depois é so clicar novamente que o video volta ao tamanho original.
+Depois de centralizar a imagem do caminhão o operador deve digitar a placa do veiculo no card DADOS DO VEICULO na tela principal e clicar na lupa. O sistema irá pegar os dados do veiculo e preencher automaticamente o RENAVAM e o PNEU. A GRU deve ser inserida manualmente.
+Antes de iniciar o ensaio ,  operador deve garantir que a rampa dos rolos esteja baixada. ele pode controlar a rampo no CONTROLE DE RAMPA que são os tres botões:
+
+- 1 Botao vermelho: Desce a Rampa
+- 2 Botao Verde: Sobe a Rampa
+- 3 Botao Azual: desliga o motor da Rampa
+
+Agora apos clicar no botao INICIAR ENSAIO irá aparecer a tela do ensaio no estagio 1 como mostrado na figura telaEnsaioEstagio1.png o qual irá pedir para o operador posicione o veiculo no rolo para o alinhamento. Se o veículo já estiver na posição correta é so pressionar o botão CONTINUAR. Na tela irá mostrar a messangem para acelerar um pouco onde o morotista deve acelerar ate uns 30Km/h aproximadamente para o veiculo se alinhar no rolo e logo em seguida ira pedir para acelerar acima de 45Km/h para a medição do pneus como mostrado na figura telaMedirPneu.png. Apos a medição do pneu o motorista deva para o veiculo para i nicio do estagio 2 do ensaio onde o veiculo deve permanecer parado por dois minutos. Um contados de tempo irá aparecer na tela, espere terminar o tempo para estrar no estagio 3.
+Ao iniciar o estafio 3, o motorista deve acelerar o veiculo a uma velocidade de 50km/h (+/- 5km/h) e manter a velocidade sempre dentro da faixa de controle representada pelas duas barras horizontais no Grafico como mostrado na telaEnsaioEstagio3.png e manter essa velocidade por 2km. Se durante o ensaio, essa velocidade sair desse ranger, o ensaio será abortado. No final do estagio 3 o motorista deve frear e permanecer paradado novamente por 2 minutos no estagio 4. Terminado o estagio 4, irá se encerrar o ensaio e ira mostrar o resultado do ensaio com os valores mostrado na tela como se pode ver na figura telaEnsaioResultado.png. Automaticamente os dados do ensaio serão armazenados no banco de dados e um arquivo XML criptografado irá ser enviado via internet para o servidor do INMETRO para analise. É importante que a internet esteja conectada e funcionando no computador. Caso falhe o envio de dados por falta de internet , o arquivo pode ser enviado posteriormente como sera mostrado mais tarde nesse manual. Se o XML for enviado com sucesso , voce podera ver na figura telaRespostaServidor.png. Caso aconteça algum erro, esse erro sera mostrado na tela. A lista de erros pode ser mostrado na tabela abaixo (mostrar a tabela de erros).
+
+# 4º Passo (Registros)
+
+Apois terminar o ensaio voce podera acessar os relatorios gerados clicando no botao mostrado na figura buttonRelario.png da tela principal do programa para abrir o registro de todos os relarios cadastrados como mostrado na figura telaRelatorio.png. Os relatorio de cor azul são os que foram enviados o xml para o servidor do INMETRO corretamente. Os relatorios de cor branco são os que não foram enviados os XML por falta de internet local ou por algum problema do servidor do INMETRO e podem ser reenviados novamnete clicando em cima da palavra ASSINADO no campo WEB. e os de cor vermelha são os que contem algum erro no XML e devem ser feitos os ensaios novamente.

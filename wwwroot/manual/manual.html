@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual do Usuário — CronoTacografo</title>
+<style>
+  :root {
+    --primary: #00897b;
+    --primary-dark: #00695c;
+    --accent: #00bcd4;
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #5a6a7a;
+    --border: #dde3ea;
+    --sidebar-width: 280px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* ===== CAPA ===== */
+  .capa {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+    background: linear-gradient(135deg, #0a0e17 0%, #1a2a3a 50%, #0d2137 100%);
+    color: #fff;
+    padding: 40px 20px;
+    page-break-after: always;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .capa .icon { font-size: 72px; margin-bottom: 20px; }
+  .capa h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, #00bcd4, #00897b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  .capa .subtitle {
+    font-size: 1.2rem;
+    color: #8aa8c8;
+    margin-bottom: 30px;
+    font-weight: 300;
+  }
+  .capa .meta {
+    font-size: 0.9rem;
+    color: #5a7a9a;
+    line-height: 2;
+  }
+  .capa .meta strong { color: #aac8e8; }
+  .capa .badge {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 8px 24px;
+    border: 1px solid #00bcd4;
+    border-radius: 24px;
+    color: #00bcd4;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    box-shadow: 0 0 20px rgba(0, 188, 212, 0.3);
+  }
+
+  /* ===== LAYOUT ===== */
+  .wrapper { display: flex; min-height: 100vh; }
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: #0a0e17;
+    color: #c0d0e0;
+    overflow-y: auto;
+    z-index: 100;
+    padding: 0;
+    transition: transform 0.3s;
+  }
+  .sidebar-header {
+    padding: 20px 16px 12px;
+    border-bottom: 1px solid #1a2a3a;
+    position: sticky;
+    top: 0;
+    background: #0a0e17;
+    z-index: 2;
+  }
+  .sidebar-header h2 {
+    font-size: 0.85rem;
+    color: #00bcd4;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+  .sidebar-header .version {
+    font-size: 0.7rem;
+    color: #5a7a9a;
+    margin-top: 2px;
+  }
+  .sidebar nav { padding: 8px 0 80px; }
+  .sidebar nav a {
+    display: block;
+    padding: 7px 16px 7px 20px;
+    color: #8aa0b8;
+    text-decoration: none;
+    font-size: 0.82rem;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .sidebar nav a:hover,
+  .sidebar nav a.active {
+    color: #e0f0ff;
+    background: #0f1a2a;
+    border-left-color: var(--accent);
+  }
+  .sidebar nav a.section-title {
+    font-weight: 600;
+    color: #b0c8e0;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-top: 14px;
+    padding-bottom: 4px;
+    border-left-color: transparent;
+    cursor: default;
+    pointer-events: none;
+  }
+  .sidebar nav a.sub { padding-left: 32px; font-size: 0.78rem; }
+
+  .main-content {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    padding: 0;
+    max-width: 900px;
+  }
+
+  /* ===== PRINT BAR ===== */
+  .print-bar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .print-bar .title-small {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+  .print-bar button {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .print-bar button:hover { background: var(--primary-dark); }
+  .print-bar button::before { content: "\1F5A8  "; }
+
+  /* ===== CONTENT SECTIONS ===== */
+  .content { padding: 0 48px 60px; }
+  section {
+    scroll-margin-top: 60px;
+    page-break-inside: avoid;
+  }
+  section.page-break { page-break-before: always; }
+
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #0a0e17;
+    margin: 40px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 3px solid var(--primary);
+  }
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1a2a3a;
+    margin: 28px 0 10px;
+  }
+  h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2a4a5a;
+    margin: 20px 0 8px;
+  }
+  p { margin-bottom: 12px; color: #2a3a4a; }
+  ul, ol { margin: 8px 0 16px 24px; }
+  li { margin-bottom: 4px; }
+
+  /* ===== CARDS / CALLOUTS ===== */
+  .info-box, .warning-box, .tip-box {
+    position: relative;
+    padding: 14px 18px 14px 42px;
+    border-radius: 8px;
+    margin: 16px 0;
+    border-left: 4px solid;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .info-box {
+    background: #e3f2fd;
+    border-color: #1976d2;
+    color: #0d47a1;
+  }
+  .warning-box {
+    background: #fff3e0;
+    border-color: #f57c00;
+    color: #e65100;
+  }
+  .tip-box {
+    background: #e8f5e9;
+    border-color: #388e3c;
+    color: #1b5e20;
+  }
+
+  /* ===== TABLES ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.9rem;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+  th {
+    background: #0a0e17;
+    color: #e0e8f0;
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  tr:nth-child(even) { background: #f8fafc; }
+  tr:hover { background: #eef2f7; }
+
+  /* ===== CODE ===== */
+  code {
+    background: #eef2f7;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: #c7254e;
+  }
+  pre {
+    background: #0a0e17;
+    color: #e0e8f0;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    font-family: 'Consolas', 'Courier New', monospace;
+    line-height: 1.5;
+    margin: 12px 0;
+  }
+
+  /* ===== SCREENSHOT PLACEHOLDER ===== */
+  .screenshot {
+    display: block;
+    margin: 16px auto;
+    max-width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #eef2f7;
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+  .screenshot::before { content: "\1F4F7  "; }
+
+  /* ===== IMAGES ===== */
+  .manual-img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 16px auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .manual-img + .img-caption {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin-top: -8px;
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+  .img-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin: 16px 0;
+  }
+  .img-group .manual-img {
+    flex: 0 0 auto;
+    max-width: 300px;
+    margin: 0;
+  }
+  .flag-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin: 16px 0;
+  }
+  .flag-group .flag-item {
+    flex: 0 0 auto;
+    text-align: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    min-width: 140px;
+  }
+  .flag-group .flag-item strong {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text);
+  }
+  .flag-group .flag-item span {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    margin-top: 60px;
+    padding: 24px 0;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  /* ===== FOCUS VISIBLE ===== */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ===== SCROLLBAR ===== */
+  .sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: #1a2a3a #0a0e17;
+  }
+  .sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .sidebar::-webkit-scrollbar-track {
+    background: #0a0e17;
+  }
+  .sidebar::-webkit-scrollbar-thumb {
+    background: #1a2a3a;
+    border-radius: 3px;
+  }
+  .sidebar::-webkit-scrollbar-thumb:hover {
+    background: #2a3a4a;
+  }
+
+  /* ===== CALLOUT ICONS ===== */
+  .info-box::before {
+    content: "\2139";
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    font-size: 1.1rem;
+  }
+  .warning-box::before {
+    content: "\26A0";
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    font-size: 1.1rem;
+  }
+  .tip-box::before {
+    content: "\2713";
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+
+  /* ===== TABLE TRANSITION ===== */
+  tr {
+    transition: background-color 0.15s ease;
+  }
+
+  /* ===== HAMBURGER BUTTON ===== */
+  .hamburger {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 200;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+      width: 260px;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .main-content { margin-left: 0; }
+    .content { padding: 0 20px 40px; }
+    .print-bar { padding: 10px 20px; }
+    .capa h1 { font-size: 1.8rem; }
+    .hamburger { display: block; }
+  }
+
+  /* ===== PRINT ===== */
+  @media print {
+    @page { margin: 15mm; size: A4; }
+    .sidebar { display: none; }
+    .print-bar { display: none; }
+    .main-content { margin-left: 0; max-width: 100%; }
+    .content { padding: 0; }
+    section { page-break-inside: avoid; }
+    .capa { min-height: 100vh; }
+    a { color: inherit; text-decoration: none; }
+    h2 { page-break-after: avoid; }
+    h3 { page-break-after: avoid; }
+    table { font-size: 0.8rem; }
+    pre { font-size: 0.75rem; }
+    .screenshot { border: 1px solid #ccc; break-inside: avoid; }
+    .info-box, .warning-box, .tip-box { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="capa">
+  <div class="icon">&#9881;</div>
+  <h1>CRONOTACOGRAFO</h1>
+  <div class="subtitle">Sistema de Ensaio de Cronotacógrafos</div>
+  <div class="meta">
+    <strong>Versão:</strong> 1.0<br>
+    <strong>Software:</strong> INSPEX CRONO V1<br>
+    <strong>Fabricante:</strong> CETECH<br>
+    <strong>Norma:</strong> NIE-DIMEL-140 (Inmetro)<br>
+    <strong>Data:</strong> Julho / 2026
+  </div>
+  <div class="badge">Manual do Usuário</div>
+</div>
+
+<div class="wrapper">
+  <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menu">&#9776;</button>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>CronoTacografo</h2>
+      <div class="version">Manual do Usuário v1.0</div>
+    </div>
+    <nav id="toc">
+      <a href="#s1" class="section-title">1. Apresentação</a>
+      <a href="#s2" class="section-title">2. Instalação</a>
+      <a href="#s2_1" class="sub">2.1 Pré-requisitos</a>
+      <a href="#s2_2" class="sub">2.2 Instalação do Sistema</a>
+      <a href="#s2_3" class="sub">2.3 Estrutura de Pastas</a>
+      <a href="#s3" class="section-title">3. Hardware e Conexões</a>
+      <a href="#s3_1" class="sub">3.1 Diagrama de Ligação</a>
+      <a href="#s3_2" class="sub">3.2 PCI de Pulsos</a>
+      <a href="#s3_3" class="sub">3.3 Trena a Laser</a>
+      <a href="#s3_4" class="sub">3.4 GPS</a>
+      <a href="#s3_5" class="sub">3.5 Câmera IP</a>
+      <a href="#s3_6" class="sub">3.6 Simulador de Pista</a>
+      <a href="#s3_7" class="sub">3.7 Certificado Digital</a>
+      <a href="#s4" class="section-title">4. Tela Principal</a>
+      <a href="#s4_1" class="sub">4.1 Visão Geral</a>
+      <a href="#s4_2" class="sub">4.2 Indicadores de Status</a>
+      <a href="#s4_3" class="sub">4.3 Dados do Veículo</a>
+      <a href="#s4_4" class="sub">4.4 Controles da Rampa</a>
+      <a href="#s4_5" class="sub">4.5 Câmera IP</a>
+      <a href="#s5" class="section-title">5. Configuração</a>
+      <a href="#s5_1" class="sub">5.1 Aba Configurações</a>
+      <a href="#s5_2" class="sub">5.2 Aba Empresa</a>
+      <a href="#s5_3" class="sub">5.3 Aba Calibração</a>
+      <a href="#s6" class="section-title">6. Cadastro de Veículos</a>
+      <a href="#s7" class="section-title">7. Execução do Ensaio</a>
+      <a href="#s7_1" class="sub">7.1 Preparação</a>
+      <a href="#s7_2" class="sub">7.2 Estágio 1</a>
+      <a href="#s7_3" class="sub">7.3 Estágio 2</a>
+      <a href="#s7_4" class="sub">7.4 Estágio 3</a>
+      <a href="#s7_5" class="sub">7.5 Estágio 4</a>
+      <a href="#s7_6" class="sub">7.6 Estágio 5</a>
+      <a href="#s8" class="section-title">8. Histórico</a>
+      <a href="#s9" class="section-title">9. Interface Web</a>
+      <a href="#s10" class="section-title">10. Solução de Problemas</a>
+      <a href="#s11" class="section-title">11. Anexos</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <div class="print-bar">
+      <span class="title-small">CronoTacografo — Manual do Usuário</span>
+      <button onclick="window.print()">Salvar como PDF</button>
+    </div>
+
+    <div class="content">
+
+      <!-- ======================== 1 ======================== -->
+      <section id="s1" class="page-break">
+        <h2>1. Apresentação do Sistema</h2>
+
+        <h3>1.1 Sobre o CronoTacografo</h3>
+        <p>O <strong>CronoTacografo</strong> é um sistema profissional para realização de ensaios metrológicos em cronotacógrafos veiculares, em conformidade com a norma <strong>NIE-DIMEL-140</strong> do Inmetro. O sistema é utilizado por Postos Autorizados de Cronotacógrafo (PAC) e institutos de metrologia (IPEM) para certificar a conformidade de tacógrafos instalados em veículos de transporte rodoviário.</p>
+
+        <h3>1.2 Finalidade</h3>
+        <p>O software controla um <strong>simulador de pista</strong> (rolos) para submeter o veículo a um ciclo de ensaio padronizado de aproximadamente 2000 metros a 50 km/h, medindo a velocidade, distância e pulsos do tacógrafo. Ao final, gera um relatório técnico e um arquivo XML assinado digitalmente para envio ao webservice do Inmetro.</p>
+
+        <h3>1.3 Público-Alvo</h3>
+        <ul>
+          <li>Operadores de PAC (Postos Autorizados de Cronotacógrafo)</li>
+          <li>Técnicos de institutos de metrologia (IPEM/INMETRO)</li>
+          <li>Oficinas especializadas em tacógrafos</li>
+        </ul>
+
+        <h3>1.4 Requisitos de Sistema</h3>
+        <table>
+          <tr><th>Componente</th><th>Especificação</th></tr>
+          <tr><td>Sistema Operacional</td><td>Windows 10 / 11 (64 bits)</td></tr>
+          <tr><td>.NET Framework</td><td>4.8 ou superior</td></tr>
+          <tr><td>Banco de Dados</td><td>SQL Server LocalDB 2016 (incluído no pacote)</td></tr>
+          <tr><td>Resolução de Vídeo</td><td>Mínimo 1280 x 720</td></tr>
+          <tr><td>Portas Seriais</td><td>2 portas COM disponíveis (PCI e Trena)</td></tr>
+          <tr><td>Conexão Internet</td><td>Necessária para envio do XML ao Inmetro</td></tr>
+          <tr><td>Certificado Digital</td><td>Certificado A3 (token USB) para assinatura XML</td></tr>
+        </table>
+      </section>
+
+      <!-- ======================== 2 ======================== -->
+      <section id="s2" class="page-break">
+        <h2>2. Instalação e Configuração Inicial</h2>
+
+        <h3 id="s2_1">2.1 Pré-requisitos</h3>
+        <p>Antes de instalar o sistema, verifique os seguintes pré-requisitos:</p>
+        <ol>
+          <li><strong>SQL Server LocalDB 2016</strong> — instalador disponível na pasta <code>Suporte\SqlLocalDB 13 2016.msi</code></li>
+          <li><strong>.NET Framework 4.8</strong> — disponível no Windows Update ou site da Microsoft</li>
+          <li><strong>Certificado Digital A3</strong> — instalado no repositório de certificados do Windows (Store Name: My, StoreLocation: CurrentUser)</li>
+          <li><strong>Portas seriais</strong> — identificar as portas COM do PCI e da trena a laser no Gerenciador de Dispositivos</li>
+        </ol>
+
+        <div class="warning-box">
+          <strong>Atenção:</strong> O sistema desativa a sincronização NTP do Windows para garantir que o horário do sistema seja controlado exclusivamente pelo GPS. O aplicativo solicitará permissão de administrador para esta alteração.
+        </div>
+
+        <h3 id="s2_2">2.2 Instalação do Sistema</h3>
+        <ol>
+          <li>Copie a pasta do sistema para o local desejado (ex: <code>C:\CronoTacografo</code>)</li>
+          <li>Execute o aplicativo <strong>CronoTacografo.exe</strong> como administrador</li>
+          <li>Na primeira execução, o sistema criará automaticamente as pastas necessárias em <code>C:\InspexCrono\</code></li>
+          <li>O banco de dados será anexado automaticamente ao SQL Server LocalDB</li>
+          <li>Configure as portas COM e demais parâmetros na tela de Configuração (seção 5)</li>
+        </ol>
+
+        <h3 id="s2_3">2.3 Estrutura de Pastas</h3>
+        <p>O sistema cria e utiliza a seguinte estrutura de diretórios:</p>
+        <pre>
+C:\InspexCrono\
+├── imgPlaca\      # Fotos do veículo capturadas pela câmera IP
+├── imgGrafico\    # Imagens do gráfico de velocidade do ensaio
+└── xml\           # Arquivos XML gerados e assinados para envio</pre>
+
+        <p>Além disso, na pasta do sistema (<code>CronoTacografo\config\</code>), são armazenados os arquivos de configuração:</p>
+        <pre>
+config\          # Arquivos de configuração do sistema</pre>
+      </section>
+
+      <!-- ======================== 3 ======================== -->
+      <section id="s3" class="page-break">
+        <h2>3. Hardware e Conexões</h2>
+
+        <h3 id="s3_1">3.1 Diagrama de Ligação</h3>
+        <div class="screenshot">Diagrama de ligação dos equipamentos — inserir imagem</div>
+
+        <h3 id="s3_2">3.2 PCI de Aquisição de Pulsos (Serial COM1)</h3>
+        <table>
+          <tr><th>Parâmetro</th><th>Valor</th></tr>
+          <tr><td>Porta</td><td>COM1 (configurável)</td></tr>
+          <tr><td>Baud Rate</td><td>115200</td></tr>
+          <tr><td>Função</td><td>Ler os pulsos do encoder do simulador de pista para calcular velocidade e distância</td></tr>
+        </table>
+        <p>A PCI se comunica via porta serial e envia os pulsos do encoder para o cálculo de velocidade e distância percorrida.</p>
+
+        <h3 id="s3_3">3.3 Trena a Laser (Serial COM2)</h3>
+        <table>
+          <tr><th>Parâmetro</th><th>Valor</th></tr>
+          <tr><td>Porta</td><td>COM2 (configurável)</td></tr>
+          <tr><td>Baud Rate</td><td>115200</td></tr>
+          <tr><td>Função</td><td>Medir a distância do veículo para referência de calibração</td></tr>
+        </table>
+
+        <h3 id="s3_4">3.4 GPS</h3>
+        <p>O módulo GPS se comunica via PCI e fornece dados de localização e horário. Os dados GPS são utilizados para:</p>
+        <ul>
+          <li>Sincronizar o horário do Windows com o horário GPS</li>
+          <li>Registrar coordenadas geográficas no relatório de ensaio</li>
+        </ul>
+
+        <h3 id="s3_5">3.5 Câmera IP</h3>
+        <table>
+          <tr><th>Parâmetro</th><th>Descrição</th></tr>
+          <tr><td>URL</td><td>Configurável na tela de Configuração do sistema</td></tr>
+          <tr><td>Função</td><td>Capturar imagem do veículo sobre os rolos para registro no relatório</td></tr>
+        </table>
+
+        <h3 id="s3_6">3.6 Simulador de Pista (Rolos)</h3>
+        <p>O sistema controla um simulador de pista (rolos motorizados) através de comandos seriais enviados à PCI. O simulador possui:</p>
+        <ul>
+          <li><strong>Elevador/Rampa:</strong> Sistema hidráulico ou motorizado para posicionar o veículo sobre os rolos</li>
+          <li><strong>Rolos:</strong> Cilindros que apoiam o veiculo atraves do pneu</li>
+          <li><strong>Encoder:</strong> Sensor de pulsos que mede a rotação dos rolos</li>
+          <li><strong>Timeouts de segurança:</strong> O motor da rampa desliga automaticamente após o tempo configurado (evita superaquecimento)</li>
+        </ul>
+
+        <div class="warning-box">
+          <strong>Segurança:</strong> Sempre verifique se o veículo está corretamente posicionado antes de acionar a rampa. O sistema possui auto-desligamento por timeout, mas a vigilância do operador é essencial.
+        </div>
+
+        <h3 id="s3_7">3.7 Certificado Digital (Token USB)</h3>
+        <p>O sistema utiliza certificado digital <strong>A3</strong> (armazenado em token USB) para assinar digitalmente o XML de resultado do ensaio. O certificado deve:</p>
+        <ul>
+          <li>Estar instalado no repositório de certificados do Windows</li>
+          <li>Ser reconhecido pelo sistema operacional (com driver do fornecedor do token)</li>
+          <li>Estar fisicamente conectado ao USB durante a geração do relatório</li>
+        </ul>
+      </section>
+
+      <!-- ======================== 4 ======================== -->
+      <section id="s4" class="page-break">
+        <h2>4. Tela Principal</h2>
+
+        <h3 id="s4_1">4.1 Visão Geral</h3>
+        <img class="manual-img" loading="lazy" src="telaPrincipal.png" alt="Tela Principal do Sistema">
+        <div class="img-caption">Tela Principal — centro de controle do sistema</div>
+        <p>A tela principal é o centro de controle do sistema. A partir dela, o operador pode iniciar ensaios, acessar configurações, cadastrar veículos e visualizar relatórios.</p>
+
+        <h3 id="s4_2">4.2 Indicadores de Status</h3>
+
+        <p>Antes de iniciar qualquer ensaio, o operador deve verificar os <strong>três indicadores principais</strong> (flags) no canto superior da tela:</p>
+
+        <div class="flag-group">
+          <div class="flag-item">
+            <strong>&#9679; SERIAL</strong>
+            <span>Comunicação com a PCI</span>
+          </div>
+          <div class="flag-item">
+            <strong>&#9679; GPS</strong>
+            <span>Sinal de localização</span>
+          </div>
+          <div class="flag-item">
+            <strong>&#9679; TOKEN</strong>
+            <span>Bloqueio remoto (MQTT)</span>
+          </div>
+        </div>
+
+        <img class="manual-img" loading="lazy" src="flags.png" alt="Indicadores de Status (Flags)">
+        <div class="img-caption">Flags de status — todos devem estar OK para iniciar o ensaio</div>
+
+        <table>
+          <tr><th>Indicador</th><th>Função</th><th>Estados</th></tr>
+          <tr><td><strong>SERIAL</strong></td><td>Estado da conexão com a PCI</td><td>CONECTADO (verde) / DESCONECTADO (cinza)</td></tr>
+          <tr><td><strong>GPS</strong></td><td>Estado do sinal GPS</td><td>ATIVO (verde) / INATIVO (cinza)</td></tr>
+          <tr><td><strong>TOKEN</strong></td><td>Indica bloqueio por MQTT</td><td>BLOQUEADO / OK</td></tr>
+          <tr><td><strong>Lat / Lon</strong></td><td>Coordenadas GPS atuais</td><td>Latitude e Longitude</td></tr>
+          <tr><td><strong>Data / Hora</strong></td><td>Data e hora (sincronizadas com GPS)</td><td>dd-MM-yyyy / HH:mm:ss</td></tr>
+          <tr><td><strong>Web URL</strong></td><td>URL do servidor web embarcado</td><td><code>http://IP:8080</code></td></tr>
+        </table>
+
+        <h3 id="s4_3">4.3 Dados do Veículo</h3>
+        <p>Campos para entrada dos dados do veículo a ser ensaiado:</p>
+        <table>
+          <tr><th>Campo</th><th>Descrição</th><th>Obrigatório</th></tr>
+          <tr><td><strong>PLACA</strong></td><td>Placa do veículo (ex: ABC1D23)</td><td>Sim</td></tr>
+          <tr><td><strong>RENAVAM</strong></td><td>Número do RENAVAM (11 dígitos)</td><td>Sim</td></tr>
+          <tr><td><strong>PNEU</strong></td><td>Medida do pneu (ex: 215/75R17.5)</td><td>Sim</td></tr>
+          <tr><td><strong>GRU</strong></td><td>Número da Guia de Recolhimento da União</td><td>Sim (mín. 3 dígitos)</td></tr>
+        </table>
+
+        <p>O botão <strong>PESQUISAR</strong> (lupa) busca os dados do veículo no banco de dados a partir da placa informada, preenchendo automaticamente os campos.</p>
+
+        <h3 id="s4_4">4.4 Controles da Rampa</h3>
+        <p>Três botões controlam o elevador/rampa do simulador de pista:</p>
+        <table>
+          <tr><th>Botão</th><th>Descrição</th></tr>
+          <tr><td><strong>SUBIR</strong></td><td>Aciona o motor para subir a rampa</td></tr>
+          <tr><td><strong>DESCER</strong></td><td>Aciona o motor para descer a rampa</td></tr>
+          <tr><td><strong>PARAR</strong></td><td>Para o motor imediatamente</td></tr>
+        </table>
+        <div class="info-box">
+          A rampa possui <strong>auto-desligamento</strong> após o tempo configurado na tela de Configuração. O botão ativo fica destacado em amarelo.
+        </div>
+
+        <h3 id="s4_5">4.5 Câmera IP</h3>
+        <p>O feed da câmera IP é exibido em tempo real. Clique sobre o vídeo para alternar entre os modos:</p>
+        <ul>
+          <li><strong>Modo janela:</strong> Tamanho reduzido dentro do painel</li>
+          <li><strong>Modo tela cheia (Dock Fill):</strong> A imagem ocupa todo o espaço do painel</li>
+        </ul>
+
+        <h3 id="s4_6">4.6 Botões de Navegação</h3>
+        <table>
+          <tr><th>Botão</th><th>Descrição</th></tr>
+          <tr><td><strong>INICIAR ENSAIO</strong></td><td>Abre a tela de execução do ensaio</td></tr>
+          <tr><td><strong>CADASTRO</strong></td><td>Abre a tela de cadastro de veículos</td></tr>
+          <tr><td><strong>CONFIG</strong></td><td>Abre a tela de configuração do sistema</td></tr>
+          <tr><td><strong>BANCO</strong></td><td>Abre a tela de histórico de relatórios</td></tr>
+          <tr><td><strong>SAIR</strong></td><td>Fecha o sistema (para servidor web, câmera e serial)</td></tr>
+        </table>
+      </section>
+
+      <!-- ======================== 5 ======================== -->
+      <section id="s5" class="page-break">
+        <h2>5. Configuração do Sistema</h2>
+
+        <p>Para acessar a tela de configuração, clique no botão <strong>CONFIG</strong> na tela principal (destacado na imagem abaixo).</p>
+
+        <img class="manual-img" loading="lazy" src="buttonConfig.png" alt="Botão CONFIG na tela principal">
+
+        <img class="manual-img" loading="lazy" src="telaConfigSistema.png" alt="Tela de Configuração do Sistema">
+        <div class="img-caption">Tela de Configuração — Aba Configurações</div>
+
+        <h3 id="s5_1">5.1 Aba Configurações</h3>
+        <p>Parâmetros gerais de operação do sistema. Alguns campos são bloqueados e podem ser alterados apenas pelo administrador do sistema:</p>
+        <table>
+          <tr><th>Campo</th><th>Descrição</th><th>Permissão</th></tr>
+          <tr><td><strong>Câmera IP (URL)</strong></td><td>URL completa da câmera IP (ex: <code>http://192.168.0.100:8080/shot.jpg</code>)</td><td>Operador</td></tr>
+          <tr><td><strong>COM PCI</strong></td><td>Porta serial da PCI (ex: COM1)</td><td>Operador</td></tr>
+          <tr><td><strong>COM Trena</strong></td><td>Porta serial da trena a laser (ex: COM2)</td><td>Operador</td></tr>
+          <tr><td><strong>Pulso (tamanho)</strong></td><td>Tamanho de cada pulso do encoder em mm</td><td>Admin</td></tr>
+          <tr><td><strong>URL Ensaio</strong></td><td>URL do webservice de ensaio do Inmetro</td><td>Admin</td></tr>
+          <tr><td><strong>URL Validação</strong></td><td>URL para validação/envio do XML</td><td>Admin</td></tr>
+          <tr><td><strong>Tempo Rampa</strong></td><td>Timeout de segurança da rampa em segundos</td><td>Operador</td></tr>
+          <tr><td><strong>Timeout Buffer</strong></td><td>Tempo de buffer serial em ms (aglutinação de mensagens)</td><td>Admin</td></tr>
+          <tr><td><strong>Conv Km/h</strong></td><td>Fator de conversão para km/h</td><td>Admin</td></tr>
+          <tr><td><strong>Tipo Gráfico</strong></td><td><code>2D</code> (linha) ou <code>3D</code> (área 3D)</td><td>Operador</td></tr>
+        </table>
+        <p>Clique em <strong>SALVAR CONFIGURAÇÕES</strong> para persistir as alterações.</p>
+
+        <h3 id="s5_2">5.2 Aba Empresa</h3>
+        <p>Dados da empresa/instituição responsável pelos ensaios. Preencha as informações e selecione o logotipo para aparecer nos relatórios.</p>
+
+        <img class="manual-img" loading="lazy" src="telaConfigCad.png" alt="Aba Empresa — dados da instituição">
+        <div class="img-caption">Aba Empresa — dados da instituição</div>
+
+        <table>
+          <tr><th>Campo</th><th>Descrição</th></tr>
+          <tr><td><strong>Razão Social</strong></td><td>Nome completo da empresa</td></tr>
+          <tr><td><strong>CNPJ</strong></td><td>CNPJ (apenas números)</td></tr>
+          <tr><td><strong>Endereço</strong></td><td>Endereço completo</td></tr>
+          <tr><td><strong>Cidade</strong></td><td>Cidade / UF</td></tr>
+          <tr><td><strong>Logotipo</strong></td><td>Imagem do logo (selecionada via botão "SELECIONAR LOGO")</td></tr>
+        </table>
+        <div class="tip-box">
+          O logotipo é copiado para o caminho indicado e referenciado no relatório. Recomenda-se imagem PNG com fundo transparente.
+        </div>
+
+        <h3 id="s5_3">5.3 Aba Calibração</h3>
+        <p>Ferramentas para calibração e verificação do sistema de medição. Nesta tela o operador pode visualizar os dados enviados pela placa de controle, verificar se todos os sensores estão funcionando e se os valores estão corretos.</p>
+
+        <img class="manual-img" loading="lazy" src="telaConfigCalib.png" alt="Aba Calibração — verificação dos sensores">
+        <div class="img-caption">Aba Calibração — verificação dos sensores</div>
+
+        <h4>5.3.1 Medição com Trena a Laser</h4>
+        <ol>
+          <li>Conecte a trena a laser na porta COM configurada</li>
+          <li>Posicione o veículo sobre os rolos</li>
+          <li>Clique em <strong>CAPTURAR TRENA</strong></li>
+          <li>A distância lida pela trena será exibida (em mm)</li>
+        </ol>
+
+        <h4>5.3.2 Medição com Rolos</h4>
+        <ol>
+          <li>Acione o simulador de pista para girar os rolos</li>
+          <li>Com o veículo acelerando acima de 45 km/h, clique em <strong>CAPTURAR ROLO</strong></li>
+          <li>O sistema coleta 10 amostras de pulsos e calcula a média</li>
+          <li>A medida do pneu pelo rolo é exibida (em mm)</li>
+        </ol>
+
+        <h4>5.3.3 Divergência</h4>
+        <p>O sistema calcula automaticamente a divergência percentual entre a medição a laser e a medição por rolos.</p>
+
+        <h4>5.3.4 Monitoramento GPS</h4>
+        <p>A seção GPS permite:</p>
+        <ul>
+          <li>Visualizar dados de GPS em tempo real</li>
+          <li>Exibir latitude, longitude, altitude e número de satélites</li>
+          <li>Abrir a localização no Google Maps</li>
+        </ul>
+
+        <h4>5.3.5 Salvamento do Relatório de Calibração</h4>
+        <p>Após realizar as medições, preencha os dados da trena (modelo, certificado, nº série) e clique em <strong>SALVAR RELATÓRIO</strong> para registrar a calibração no banco de dados.</p>
+      </section>
+
+      <!-- ======================== 6 ======================== -->
+      <section id="s6" class="page-break">
+        <h2>6. Cadastro de Veículos</h2>
+
+        <p>Para acessar o cadastro de veículos, clique no botão <strong>CADASTRO</strong> na tela principal.</p>
+
+        <img class="manual-img" loading="lazy" src="buttonCad.png" alt="Botão CADASTRO na tela principal">
+
+        <img class="manual-img" loading="lazy" src="telaCadastro.png" alt="Tela de Cadastro de Veículos">
+        <div class="img-caption">Tela de Cadastro de Veículos</div>
+
+        <p>A tela de cadastro permite o registro e consulta de veículos no banco de dados do sistema. Após inserir os dados corretamente, clique em <strong>CADASTRAR</strong> para salvar. O veículo aparecerá no grid ao lado.</p>
+
+        <h3>6.1 Campos do Cadastro</h3>
+        <table>
+          <tr><th>Campo</th><th>Descrição</th><th>Validação</th></tr>
+          <tr><td><strong>PLACA</strong></td><td>Placa do veículo (formato Mercosul ou antigo)</td><td>Mín. 7 caracteres</td></tr>
+          <tr><td><strong>RENAVAM</strong></td><td>Registro Nacional de Veículos Automotores</td><td>11 dígitos</td></tr>
+          <tr><td><strong>MODELO</strong></td><td>Modelo do veículo (ex: FH 460)</td><td>-</td></tr>
+          <tr><td><strong>MARCA</strong></td><td>Marca do veículo (ex: Volvo)</td><td>-</td></tr>
+          <tr><td><strong>ANO</strong></td><td>Ano de fabricação</td><td>-</td></tr>
+          <tr><td><strong>PNEU</strong></td><td>Medida do pneu (ex: 295/80R22.5)</td><td>-</td></tr>
+        </table>
+
+        <h3>6.2 Operações</h3>
+        <ul>
+          <li><strong>CADASTRAR:</strong> Insere um novo veículo na base de dados</li>
+          <li><strong>PESQUISAR:</strong> Busca veículos por placa ou RENAVAM</li>
+          <li><strong>Grid de resultados:</strong> Clique em uma linha para carregar os dados do veículo nos campos</li>
+          <li><strong>SAIR:</strong> Fecha a tela</li>
+        </ul>
+      </section>
+
+      <!-- ======================== 7 ======================== -->
+      <section id="s7" class="page-break">
+        <h2>7. Execução do Ensaio</h2>
+
+        <p>Esta é a tela principal de trabalho, onde o ensaio metrológico é executado em 5 estágios sequenciais.</p>
+
+        <h3 id="s7_1">7.1 Preparação</h3>
+        <p>Antes de iniciar, certifique-se de:</p>
+        <ol>
+          <li>Veículo posicionado sobre os rolos do simulador de pista</li>
+          <li>Dados do veículo preenchidos na tela principal (placa, RENAVAM, pneu, GRU)</li>
+          <li>Câmera IP capturando a imagem do veículo</li>
+          <li>GPS com sinal válido (coordenadas visíveis)</li>
+          <li>Porta serial conectada (indicador SERIAL = CONECTADO)</li>
+          <li>Token USB do certificado digital inserido</li>
+        </ol>
+
+        <p>Ao clicar em <strong>INICIAR ENSAIO</strong> na tela principal:</p>
+        <ul>
+          <li>O sistema armazena a data/hora iniciais</li>
+          <li>Captura uma foto do veículo via câmera IP</li>
+          <li>Fecha a porta serial da tela principal</li>
+          <li>Abre a tela de ensaio</li>
+          <li>Inicia o recebimento de pulsos do encoder</li>
+        </ul>
+
+        <h3 id="s7_2">7.2 Estágio 1 — Posicionamento e Medição do Pneu</h3>
+
+        <img class="manual-img" loading="lazy" src="telaEnsaioEstagio1.png" alt="Estágio 1 — posicionamento do veículo sobre os rolos">
+        <div class="img-caption">Estágio 1 — posicionamento do veículo sobre os rolos</div>
+
+        <p>Estágio dividido em 5 sub-etapas automatizadas:</p>
+
+        <h4>1.1 Posicionar Veículo sobre os Rolos</h4>
+        <ul>
+          <li>Operador posiciona o veículo manualmente</li>
+          <li>Avança clicando no botão da tela</li>
+        </ul>
+
+        <h4>1.2 Descer a Rampa</h4>
+        <ul>
+          <li>O sistema aciona o motor para descer a rampa</li>
+          <li>Barra de progresso indica o tempo do elevador descendo</li>
+          <li>Botões SUBIR/DESCER manuais disponíveis</li>
+          <li>Ao final, o sistema avança automaticamente para próxima etapa</li>
+        </ul>
+
+        <h4>1.3 Alinhamento do Veículo</h4>
+        <ul>
+          <li>Sistema para a rampa automaticamente</li>
+          <li>Operador deve acelerar o veículo acima de 20 km/h (indicador verde)</li>
+          <li>Em seguida, acelerar acima de 30 km/h (segundo indicador verde)</li>
+          <li>Após atingir 30+ km/h, barra de progresso é decrementada</li>
+          <li>Sistema avança automaticamente para próxima etapa</li>
+        </ul>
+
+        <h4>1.4 Medição do Pneu</h4>
+
+        <img class="manual-img" loading="lazy" src="telaMedirPneu.png" alt="Medição do pneu — acelerar acima de 45 km/h">
+        <div class="img-caption">Medição do pneu — acelerar acima de 45 km/h</div>
+
+        <ul>
+          <li>Operador acelera acima de 45 km/h</li>
+          <li>Sistema coleta 10 amostras de pulsos do encoder</li>
+          <li>Ao final, calcula a média das 10 amostras = medida final do pneu</li>
+        </ul>
+
+        <h4>1.5 Parar o Veículo</h4>
+        <ul>
+          <li>Sistema aguarda o veículo parar (velocidade = 0)</li>
+          <li>Exibe contagem regressiva de 20 segundos</li>
+          <li>Avança para o Estágio 2</li>
+        </ul>
+
+        <h3 id="s7_3">7.3 Estágio 2 — Repouso Inicial (2 minutos)</h3>
+
+        <img class="manual-img" loading="lazy" src="telaEnsaioEstagio2.png" alt="Estágio 2 — repouso inicial de 2 minutos">
+        <div class="img-caption">Estágio 2 — repouso inicial de 2 minutos</div>
+
+        <ul>
+          <li>Sistema registra o <strong>tempo inicial</strong> do ensaio</li>
+          <li>Habilita o gráfico de velocidade (atualização a cada 500ms)</li>
+          <li>Exibe cronômetro regressivo de 2:00 minutos</li>
+          <li>Veículo deve permanecer parado (velocidade = 0)</li>
+          <li>Barra de progresso indica o avanço (0% → 100%)</li>
+        </ul>
+
+        <div class="info-box">
+          O gráfico começa a ser plotado já no Estágio 2, registrando a velocidade zero no início.
+        </div>
+
+        <h3 id="s7_4">7.4 Estágio 3 — Ensaio Dinâmico</h3>
+
+        <img class="manual-img" loading="lazy" src="telaEnsaioEstagio3.png" alt="Estágio 3 — ensaio dinâmico com gráfico de velocidade">
+        <div class="img-caption">Estágio 3 — ensaio dinâmico com gráfico de velocidade</div>
+
+        <p>Fase principal do ensaio. O operador deve conduzir o veículo mantendo a velocidade entre <strong>45 e 55 km/h</strong> por aproximadamente <strong>2000 metros</strong>. Se a velocidade sair dessa faixa, o ensaio será abortado.</p>
+
+        <h4>Indicadores em Tempo Real</h4>
+        <table>
+          <tr><th>Indicador</th><th>Descrição</th></tr>
+          <tr><td><strong>Velocidade</strong></td><td>Velocidade instantânea em km/h (display grande)</td></tr>
+          <tr><td><strong>Distância</strong></td><td>Distância percorrida acumulada em metros</td></tr>
+          <tr><td><strong>Tempo</strong></td><td>Cronômetro progressivo (MM:SS)</td></tr>
+          <tr><td><strong>Gráfico</strong></td><td>Velocidade × Tempo com linhas de referência em 45 e 55 km/h</td></tr>
+        </table>
+
+        <h4>Gráfico de Velocidade</h4>
+        <ul>
+          <li><strong>Linha azul:</strong> Velocidade dentro da faixa (45-55 km/h)</li>
+          <li><strong>Linha vermelha:</strong> Velocidade fora da faixa</li>
+          <li><strong>Linhas roxas horizontais:</strong> Referências em 45 e 55 km/h</li>
+          <li>Atualização a cada 500ms</li>
+          <li>Suporte a zoom no eixo X</li>
+          <li>Modo 3D disponível (configurável)</li>
+        </ul>
+
+        <h4>Critério de Finalização</h4>
+        <p>O ensaio dinâmico é encerrado automaticamente quando a distância percorrida ultrapassa <strong>2000 metros</strong>.</p>
+
+        <h3 id="s7_5">7.5 Estágio 4 — Repouso Final (2 minutos)</h3>
+        <ul>
+          <li>Cronômetro regressivo de 2:00 minutos</li>
+          <li>Veículo deve permanecer parado</li>
+          <li>Linhas de referência do gráfico são desabilitadas</li>
+          <li>Ao final, sistema avança para resultados</li>
+        </ul>
+
+        <h3 id="s7_6">7.6 Estágio 5 — Resultados e Relatório</h3>
+
+        <img class="manual-img" loading="lazy" src="telaEnsaioResultado.png" alt="Resultados do Ensaio">
+        <div class="img-caption">Resultados finais do ensaio</div>
+
+        <h4>Resultados Exibidos</h4>
+        <table>
+          <tr><th>Campo</th><th>Descrição</th></tr>
+          <tr><td><strong>Pneu</strong></td><td>Medida do pneu calculada em mm</td></tr>
+          <tr><td><strong>Vel. Máxima</strong></td><td>Velocidade máxima atingida no ensaio em km/h</td></tr>
+          <tr><td><strong>Vel. Média</strong></td><td>Velocidade média durante o ensaio em km/h</td></tr>
+          <tr><td><strong>Desvio Padrão</strong></td><td>Desvio padrão das velocidades em %</td></tr>
+          <tr><td><strong>Distância Percorrida</strong></td><td>Distância total do ensaio em metros</td></tr>
+        </table>
+
+        <h4>Geração do Relatório</h4>
+        <p>Ao clicar em <strong>GERAR RELATÓRIO</strong> (ou automaticamente ao final do ensaio), o sistema executa em sequência:</p>
+        <ol>
+          <li>Salva os dados do relatório no banco de dados</li>
+          <li>Salva a imagem do gráfico gerado durante o ensaio</li>
+          <li>Gera e assina digitalmente o XML de resultado</li>
+          <li>Envia o XML ao webservice do Inmetro</li>
+          <li>Exibe a resposta do servidor com o resultado do envio</li>
+        </ol>
+
+        <div class="warning-box">
+          <strong>Importante:</strong> É fundamental que o computador esteja conectado à internet durante a geração do relatório. Caso o envio falhe por falta de conexão, o XML poderá ser reenviado posteriormente pela tela de Histórico (seção 8).
+        </div>
+
+        <img class="manual-img" loading="lazy" src="telaRespostaServidor.png" alt="Resposta do Servidor">
+        <div class="img-caption">Resposta do webservice do Inmetro</div>
+      </section>
+
+      <!-- ======================== 8 ======================== -->
+      <section id="s8" class="page-break">
+        <h2>8. Histórico e Consultas</h2>
+
+        <p>Para acessar os relatórios gerados, clique no botão <strong>BANCO</strong> na tela principal.</p>
+
+        <img class="manual-img" loading="lazy" src="buttonRelario.png" alt="Botão BANCO na tela principal">
+
+        <h3>8.1 Relatórios de Ensaio</h3>
+
+        <img class="manual-img" loading="lazy" src="telaRelatorio.png" alt="Tela de Histórico de Relatórios">
+        <div class="img-caption">Histórico de relatórios de ensaio</div>
+
+        <p>Permite consultar, visualizar e reenviar relatórios de ensaio armazenados no banco de dados.</p>
+
+        <h4>Filtros de Pesquisa</h4>
+        <ul>
+          <li><strong>Placa:</strong> Busca por placa do veículo</li>
+          <li><strong>RENAVAM:</strong> Busca por número do RENAVAM</li>
+          <li><strong>GRU:</strong> Busca por número da GRU</li>
+          <li><strong>Data:</strong> Busca por período</li>
+        </ul>
+
+        <h4>Indicadores Visuais</h4>
+        <table>
+          <tr><th>Cor da Linha</th><th>Significado</th></tr>
+          <tr><td style="background:#e3f2fd;"><strong>Azul</strong></td><td>Relatório assinado e enviado com sucesso ao servidor do Inmetro</td></tr>
+          <tr><td style="background:#ffffff;"><strong>Branco</strong></td><td>Relatório pendente — XML não enviado (falta de internet ou erro no servidor). Pode ser reenviado clicando em "ASSINADO" na coluna WEB</td></tr>
+          <tr><td style="background:#ffebee;"><strong>Vermelho</strong></td><td>Relatório com erro no XML — deve-se realizar um novo ensaio</td></tr>
+        </table>
+
+        <h4>Ações Disponíveis</h4>
+        <ul>
+          <li><strong>Visualizar Relatório:</strong> Abre o relatório para visualização</li>
+          <li><strong>Reenviar:</strong> Reenvia o XML ao webservice — útil em caso de falha de comunicação</li>
+        </ul>
+
+        <h3>8.2 Calibrações</h3>
+        <p>Consulta o histórico de calibrações realizadas, incluindo medidas da trena, rolo, divergência e dados do veículo.</p>
+
+        <h3>8.3 Logs de GPS</h3>
+        <p>Visualiza o histórico de coordenadas GPS registradas durante as operações.</p>
+
+        <h3>8.4 Resposta do Webservice</h3>
+
+        <img class="manual-img" loading="lazy" src="telaRespostaServidor.png" alt="Resposta do Webservice">
+        <div class="img-caption">Tela de resposta do servidor do Inmetro</div>
+
+        <p>Após o envio do XML, a tela de resposta exibe:</p>
+        <ul>
+          <li>O XML de resposta completo formatado</li>
+          <li>Código de status com descrição em português</li>
+          <li>Cores indicativas: <strong style="color:#4caf50;">VERDE</strong> (sucesso) / <strong style="color:#f44336;">VERMELHO</strong> (erro)</li>
+        </ul>
+      </section>
+
+      <!-- ======================== 9 ======================== -->
+      <section id="s9" class="page-break">
+        <h2>9. Interface Web (Controle Remoto)</h2>
+
+        <p>O sistema possui um servidor HTTP embarcado que oferece uma interface responsiva para controle remoto via tablet ou smartphone.</p>
+
+        <h3>9.1 Acesso</h3>
+        <ol>
+          <li>O servidor inicia automaticamente na porta <strong>8080</strong></li>
+          <li>A URL é exibida na tela principal (ex: <code>http://192.168.0.10:8080</code>)</li>
+          <li>Acesse pelo navegador do dispositivo móvel (mesma rede WiFi)</li>
+        </ol>
+
+        <h3>9.2 Funcionalidades da Interface Web</h3>
+
+        <h4>Painel de Status</h4>
+        <ul>
+          <li><strong>Serial:</strong> CONECTADO / DESCONECTADO</li>
+          <li><strong>GPS:</strong> ATIVO / ---</li>
+          <li><strong>Hora:</strong> Relógio sincronizado</li>
+        </ul>
+
+        <h4>Iniciar Ensaio</h4>
+        <p>Formulário para preencher Placa, RENAVAM, Pneu e GRU, com validação dos campos obrigatórios.</p>
+
+        <h4>Controle da Rampa</h4>
+        <p>Botões SUBIR, DESCER e PARAR para acionamento remoto.</p>
+
+        <h4>Dashboard do Ensaio</h4>
+        <p>Durante a execução do ensaio, exibe em tempo real:</p>
+        <ul>
+          <li>Estágio atual (ETAPA 1/5, 2/5 etc.)</li>
+          <li>Sub-etapa e descrição</li>
+          <li>Barra de progresso</li>
+          <li>Velocidade, tempo, distância</li>
+          <li>Gráfico de velocidade com linhas de referência em 45 e 55 km/h</li>
+          <li>Botão "Avançar Estágio"</li>
+        </ul>
+
+        <h4>Resultados</h4>
+        <p>Ao final do ensaio, exibe os resultados (pneu, velocidades, desvio, distância).</p>
+      </section>
+
+      <!-- ======================== 10 ======================== -->
+      <section id="s10" class="page-break">
+        <h2>10. Manutenção e Solução de Problemas</h2>
+
+        <h3>10.1 Conexão Serial — PCI</h3>
+        <table>
+          <tr><th>Problema</th><th>Causa Provável</th><th>Solução</th></tr>
+          <tr><td>"SERIAL DESCONECTADO"</td><td>Porta COM incorreta</td><td>Verificar COM no Gerenciador de Dispositivos</td></tr>
+          <tr><td>Sem pulsos recebidos</td><td>PCI desligada</td><td>Verificar alimentação da PCI</td></tr>
+          <tr><td>Dados corrompidos</td><td>Baud rate incorreto</td><td>Verificar 115200 baud</td></tr>
+          <tr><td>Timeout de buffer</td><td>Mensagens parciais</td><td>Ajustar timeout na configuração (padrão: 50ms)</td></tr>
+        </table>
+
+        <h3>10.2 Câmera IP</h3>
+        <table>
+          <tr><th>Problema</th><th>Causa Provável</th><th>Solução</th></tr>
+          <tr><td>Tela preta no vídeo</td><td>URL incorreta ou câmera offline</td><td>Verificar URL e credenciais</td></tr>
+          <tr><td>Erro de autenticação</td><td>Usuário/senha incorretos</td><td>Verificar credenciais de acesso</td></tr>
+        </table>
+
+        <h3>10.3 GPS</h3>
+        <table>
+          <tr><th>Problema</th><th>Causa Provável</th><th>Solução</th></tr>
+          <tr><td>Sem coordenadas</td><td>GPS sem sinal</td><td>Aguardar fixação (céu aberto)</td></tr>
+          <tr><td>Coordenadas zeradas</td><td>Timeout de leitura</td><td>Clicar no indicador GPS para forçar nova leitura</td></tr>
+        </table>
+
+        <h3>10.4 Banco de Dados</h3>
+        <table>
+          <tr><th>Problema</th><th>Causa Provável</th><th>Solução</th></tr>
+          <tr><td>"Erro no Banco de Dados"</td><td>LocalDB não instalado ou parado</td><td>Instalar SQL Server LocalDB 2016</td></tr>
+          <tr><td>Banco de dados não anexa</td><td>Versão do SQL incompatível</td><td>Usar SQL Server 2016 ou superior</td></tr>
+          <tr><td>Erro de permissão</td><td>Executar sem admin</td><td>Executar como Administrador</td></tr>
+        </table>
+
+        <h3>10.5 Certificado Digital / Assinatura XML</h3>
+        <table>
+          <tr><th>Problema</th><th>Causa Provável</th><th>Solução</th></tr>
+          <tr><td>"Certificado não encontrado"</td><td>Token não inserido ou driver ausente</td><td>Inserir token e verificar drivers</td></tr>
+          <tr><td>Erro de assinatura</td><td>Certificado expirado</td><td>Verificar validade do certificado</td></tr>
+          <tr><td>Erro de assinatura inválida</td><td>Certificado não reconhecido pelo Inmetro</td><td>Utilizar certificado ICP-Brasil</td></tr>
+        </table>
+
+        <h3>10.6 Envio ao Webservice</h3>
+        <table>
+          <tr><th>Problema</th><th>Causa Provável</th><th>Solução</th></tr>
+          <tr><td>"Sem resposta do servidor"</td><td>Falha de rede ou URL incorreta</td><td>Verificar conexão internet e URL</td></tr>
+          <tr><td>"Falha de conexão"</td><td>Servidor indisponível</td><td>Tentar novamente mais tarde</td></tr>
+          <tr><td>Erro 3100</td><td>Ambiente de homologação</td><td>Usar GRU de homologação específica</td></tr>
+        </table>
+
+        <h3>10.7 Bloqueio Remoto</h3>
+        <p>O sistema verifica remotamente se há bloqueio ao iniciar. Se o sistema estiver bloqueado:</p>
+        <ul>
+          <li>Exibe mensagem de erro ao tentar iniciar ensaio</li>
+          <li>Impede a inicialização de novos ensaios</li>
+        </ul>
+
+        <h3>10.8 Rampa / Simulador de Pista</h3>
+        <table>
+          <tr><th>Problema</th><th>Causa Provável</th><th>Solução</th></tr>
+          <tr><td>Rampa não desce</td><td>Timeout excedido</td><td>Verificar configuração de tempo da rampa</td></tr>
+          <tr><td>Motor não para</td><td>Falha de comunicação</td><td>Clicar em PARAR</td></tr>
+        </table>
+      </section>
+
+      <!-- ======================== 11 ======================== -->
+      <section id="s11" class="page-break">
+        <h2>11. Anexos</h2>
+
+        <h3>A. Glossário de Termos Técnicos</h3>
+        <table>
+          <tr><th>Termo</th><th>Descrição</th></tr>
+          <tr><td><strong>Cronotacógrafo</strong></td><td>Instrumento registrador de velocidade e tempo em veículos de transporte</td></tr>
+          <tr><td><strong>PAC</strong></td><td>Posto Autorizado de Cronotacógrafo</td></tr>
+          <tr><td><strong>IPEM</strong></td><td>Instituto de Pesos e Medidas (órgão delegado do Inmetro)</td></tr>
+          <tr><td><strong>NIE-DIMEL-140</strong></td><td>Norma do Inmetro que regulamenta ensaios em cronotacógrafos</td></tr>
+          <tr><td><strong>GRU</strong></td><td>Guia de Recolhimento da União (taxa de serviço)</td></tr>
+          <tr><td><strong>RENAVAM</strong></td><td>Registro Nacional de Veículos Automotores</td></tr>
+          <tr><td><strong>Simulador de Pista</strong></td><td>Equipamento de rolos motorizados que simula o deslocamento do veículo</td></tr>
+          <tr><td><strong>PCI</strong></td><td>Placa de Controle e Interface (hardware de aquisição de dados)</td></tr>
+          <tr><td><strong>Encoder</strong></td><td>Sensor que gera pulsos proporcionais à rotação dos rolos</td></tr>
+          <tr><td><strong>NMEA</strong></td><td>National Marine Electronics Association (protocolo padrão de GPS)</td></tr>
+          <tr><td><strong>MQTT</strong></td><td>Protocolo utilizado para verificação remota de bloqueio do sistema</td></tr>
+          <tr><td><strong>X.509</strong></td><td>Padrão de certificado digital utilizado para assinatura de documentos XML</td></tr>
+        </table>
+
+        <h3>B. Referência da Norma NIE-DIMEL-140</h3>
+        <p>A norma <strong>NIE-DIMEL-140</strong> estabelece os requisitos metrológicos e procedimentos de ensaio para cronotacógrafos. O documento oficial está disponível na pasta <code>Suporte/</code> do sistema:</p>
+        <ul>
+          <li><code>Suporte/NIE-DIMEL-140 - Cronotacografo.pdf</code></li>
+        </ul>
+
+      </section>
+
+      <!-- ===== FOOTER ===== -->
+      <div class="footer">
+        <p>CronoTacografo — Sistema de Ensaio de Cronotacógrafos v1.0</p>
+        <p>Desenvolvido por CETECH — Manual gerado em Julho de 2026</p>
+        <p>Em conformidade com NIE-DIMEL-140 — Inmetro</p>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main-content -->
+</div><!-- /wrapper -->
+
+<script>
+// Toggle sidebar on mobile
+document.addEventListener('click', function(e) {
+  var sidebar = document.getElementById('sidebar');
+  var hamburger = document.getElementById('hamburgerBtn');
+  if (window.innerWidth <= 768) {
+    if (hamburger && e.target === hamburger) {
+      sidebar.classList.toggle('open');
+    } else if (e.target.closest('.sidebar-header') || e.target.closest('.sidebar nav a')) {
+      sidebar.classList.toggle('open');
+    } else if (!e.target.closest('.sidebar')) {
+      sidebar.classList.remove('open');
+    }
+  }
+});
+
+// Highlight current section in sidebar
+window.addEventListener('scroll', function() {
+  var sections = document.querySelectorAll('section[id]');
+  var navLinks = document.querySelectorAll('.sidebar nav a[href^="#"]');
+  var current = '';
+  sections.forEach(function(s) {
+    var top = s.offsetTop - 100;
+    if (window.scrollY >= top) current = s.getAttribute('id');
+  });
+  navLinks.forEach(function(a) {
+    a.classList.remove('active');
+    if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
