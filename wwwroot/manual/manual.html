@@ -226,18 +226,25 @@
   }
   @media print {
     @page { margin: 15mm; size: A4; }
-    .sidebar { display: none; }
-    .print-bar { display: none; }
-    .main-content { margin-left: 0; max-width: 100%; }
-    .content { padding: 0; }
-    section { page-break-inside: avoid; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    .sidebar { display: none !important; }
+    .print-bar { display: none !important; }
+    .hamburger { display: none !important; }
+    .main-content { margin-left: 0 !important; max-width: 100% !important; }
+    .content { padding: 0 !important; }
+    section { page-break-inside: avoid; break-inside: avoid; }
     a { color: inherit; text-decoration: none; }
-    h2 { page-break-after: avoid; }
-    h3 { page-break-after: avoid; }
+    h2 { page-break-after: avoid; break-after: avoid; }
+    h3 { page-break-after: avoid; break-after: avoid; }
     table { font-size: 0.8rem; }
-    pre { font-size: 0.75rem; }
+    pre { font-size: 0.75rem; white-space: pre-wrap; word-wrap: break-word; }
     .screenshot { border: 1px solid #ccc; break-inside: avoid; }
     .info-box, .warning-box, .tip-box { break-inside: avoid; }
+    .manual-img { display: block !important; max-width: 100% !important; break-inside: avoid !important; page-break-inside: avoid !important; visibility: visible !important; opacity: 1 !important; }
+    .img-group, .flag-group { break-inside: avoid; }
+    figure { break-inside: avoid; page-break-inside: avoid; }
+    .capa { background: #0a0e17 !important; background-image: none !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color: #fff !important; }
+    .capa h1 { background: none !important; -webkit-text-fill-color: #00bcd4 !important; color: #00bcd4 !important; }
   }
   .hamburger { display: none; position: fixed; top: 12px; left: 12px; z-index: 200; background: var(--primary); color: #fff; border: none; border-radius: 6px; padding: 8px 12px; font-size: 1.2rem; cursor: pointer; line-height: 1; }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -324,7 +331,7 @@
   <div class="main-content">
     <div class="print-bar">
       <span class="title-small">CronoTacografo (InspexCrono V2.0.07) — Manual do Usuário</span>
-      <button onclick="window.print()">Salvar como PDF</button>
+      <button id="btnPrint" onclick="exportarPDF()">Salvar como PDF</button>
     </div>
 
     <div class="content">
@@ -446,7 +453,7 @@ CronoTacografo\
         <h2>3. Tela principal</h2>
 
         <h3 id="s3_1">3.1 Visão geral</h3>
-        <img class="manual-img" loading="lazy" src="frMain.png" alt="Tela principal — módulo de ensaio">
+        <img class="manual-img" loading="eager" decoding="async" src="frMain.png" alt="Tela principal — módulo de ensaio">
         <div class="img-caption">Figura 1 — Tela principal (módulo de ensaio)</div>
         <p>A tela principal é o centro de controle do sistema. A partir dela o operador informa os dados do
         veículo, inicia o ensaio, aciona a rampa, acompanha o vídeo da câmera IP e acessa cadastros,
@@ -460,7 +467,7 @@ CronoTacografo\
           <div class="flag-item"><strong>&#9679; TOKEN</strong><span>Certificado digital para assinatura</span></div>
         </div>
 
-        <figure><img class="manual-img" loading="lazy" src="flags.png" alt="Indicadores de status (flags) na tela principal">
+        <figure><img class="manual-img" loading="eager" decoding="async" src="flags.png" alt="Indicadores de status (flags) na tela principal">
           <figcaption>Figura 2 — Indicadores de status (Serial, GPS, Token) na tela principal</figcaption></figure>
 
         <table>
@@ -539,11 +546,11 @@ CronoTacografo\
         </table>
 
         <div class="img-group">
-          <figure><img class="manual-img" loading="lazy" src="buttonCad.png" alt="Botão CADASTRO na tela principal">
+          <figure><img class="manual-img" loading="eager" decoding="async" src="buttonCad.png" alt="Botão CADASTRO na tela principal">
             <figcaption>CADASTRO</figcaption></figure>
-          <figure><img class="manual-img" loading="lazy" src="buttonConfig.png" alt="Botão CONFIG na tela principal">
+          <figure><img class="manual-img" loading="eager" decoding="async" src="buttonConfig.png" alt="Botão CONFIG na tela principal">
             <figcaption>CONFIGURAÇÕES</figcaption></figure>
-          <figure><img class="manual-img" loading="lazy" src="buttonRelario.png" alt="Botão BANCO/Relatórios na tela principal">
+          <figure><img class="manual-img" loading="eager" decoding="async" src="buttonRelario.png" alt="Botão BANCO/Relatórios na tela principal">
             <figcaption>RELATÓRIOS (BANCO)</figcaption></figure>
         </div>
       </section>
@@ -554,7 +561,7 @@ CronoTacografo\
 
         <h3 id="s4_1">4.1 Cadastro de veículos</h3>
         <p>O cadastro de veículos é aberto pelo botão <strong>Cadastro</strong> na tela principal.</p>
-        <img class="manual-img" loading="lazy" src="frTruck.png" alt="Tela de cadastro de veículos">
+        <img class="manual-img" loading="eager" decoding="async" src="frTruck.png" alt="Tela de cadastro de veículos">
         <div class="img-caption">Figura 3 — Cadastro de veículos</div>
 
         <h4>Incluir</h4>
@@ -578,7 +585,7 @@ CronoTacografo\
         <h3 id="s4_3">4.3 Cadastro de pneus</h3>
         <p>Dentro do cadastro de veículos, o botão de pneu abre a tela de cadastro de pneus,
         <strong>protegida por senha</strong> (senha padrão: <code>cronocetech</code>).</p>
-        <img class="manual-img" loading="lazy" src="frPneu.png" alt="Tela de cadastro de pneus">
+        <img class="manual-img" loading="eager" decoding="async" src="frPneu.png" alt="Tela de cadastro de pneus">
         <div class="img-caption">Figura 4 — Cadastro de pneus</div>
         <ul>
           <li>Informe <strong>LARGURA</strong>, <strong>PERFIL</strong> e <strong>ARO</strong>
@@ -595,7 +602,7 @@ CronoTacografo\
         Verificação, Terminal). Campos bloqueados exigem senha.</p>
 
         <h3 id="s5_1">5.1 Configurações do sistema</h3>
-        <img class="manual-img" loading="lazy" src="frConfig-Sistema.png" alt="Aba Configurações do Sistema">
+        <img class="manual-img" loading="eager" decoding="async" src="frConfig-Sistema.png" alt="Aba Configurações do Sistema">
         <div class="img-caption">Figura 5 — Aba Configurações do Sistema</div>
         <table>
           <tr><th>Campo</th><th>Descrição</th><th>Permissão</th></tr>
@@ -615,7 +622,7 @@ CronoTacografo\
         em <strong>SALVAR DADOS</strong>. Botões auxiliares abrem os logs de eventos e de GPS.</p>
 
         <h3 id="s5_2">5.2 Cadastros (empresa, pista e trena)</h3>
-        <img class="manual-img" loading="lazy" src="frConfig-Cadastros.png" alt="Aba Cadastros">
+        <img class="manual-img" loading="eager" decoding="async" src="frConfig-Cadastros.png" alt="Aba Cadastros">
         <div class="img-caption">Figura 6 — Aba Cadastros (empresa, simulador de pista e trena laser)</div>
         <ul>
           <li><strong>DADOS DA EMPRESA </strong> — razão social, CNPJ, endereço, cidade e logo
@@ -626,7 +633,7 @@ CronoTacografo\
         <div class="tip-box">Recomenda-se logo PNG com fundo transparente.</div>
 
         <h3 id="s5_3">5.3 Sensores</h3>
-        <img class="manual-img" loading="lazy" src="frConfig-Sensores.png" alt="Aba Sensores">
+        <img class="manual-img" loading="eager" decoding="async" src="frConfig-Sensores.png" alt="Aba Sensores">
         <div class="img-caption">Figura 7 — Aba Sensores (leitura ao vivo)</div>
         <p>Monitoramento em tempo real:</p>
         <table>
@@ -641,7 +648,7 @@ CronoTacografo\
         <strong>ZERAR VALORES</strong> e <strong>Média de 20 Valores</strong>.</p>
 
         <h3 id="s5_4">5.4 Verificação (calibração)</h3>
-        <img class="manual-img" loading="lazy" src="frConfig-Verificacao.png" alt="Aba Verificação Periódica">
+        <img class="manual-img" loading="eager" decoding="async" src="frConfig-Verificacao.png" alt="Aba Verificação Periódica">
         <div class="img-caption">Figura 8 — Aba Verificação Periódica</div>
         <p>Fluxo de calibração:</p>
         <ol>
@@ -654,7 +661,7 @@ CronoTacografo\
         </ol>
 
         <h3 id="s5_5">5.5 Terminal (GPS/NMEA)</h3>
-        <img class="manual-img" loading="lazy" src="frConfig-Terminal.png" alt="Aba Terminal">
+        <img class="manual-img" loading="eager" decoding="async" src="frConfig-Terminal.png" alt="Aba Terminal">
         <div class="img-caption">Figura 9 — Aba Terminal (GPS/NMEA)</div>
         <p>Exibe o fluxo de sentenças NMEA e os campos <strong>LATITUDE</strong>, <strong>LONGITUDE</strong>,
         <strong>ALTITUDE</strong> e <strong>NÚMERO DE SATÉLITES</strong>. Botões:
@@ -692,10 +699,10 @@ CronoTacografo\
         </div>
 
         <h3 id="s6_2">6.2 Estágio 1 — Posicionamento, rampa, alinhamento e medida do pneu</h3>
-        <figure><img class="manual-img" loading="lazy" src="telaEnsaioEstagio1.png" alt="Estágio 1 — posicionamento sobre rolos e alinhamento">
+        <figure><img class="manual-img" loading="eager" decoding="async" src="telaEnsaioEstagio1.png" alt="Estágio 1 — posicionamento sobre rolos e alinhamento">
           <figcaption>Figura 10 — Estágio 1: posicionamento sobre os rolos e alinhamento do veículo</figcaption></figure>
 
-        <figure><img class="manual-img" loading="lazy" src="telaMedirPneu.png" alt="Medida do pneu (acima de 45 km/h)">
+        <figure><img class="manual-img" loading="eager" decoding="async" src="telaMedirPneu.png" alt="Medida do pneu (acima de 45 km/h)">
           <figcaption>Figura 11 — Medida do pneu (coleta de amostras acima de 45 km/h)</figcaption></figure>
         <ol>
           <li><strong>Posicionar sobre os rolos:</strong> posicione o veículo e clique <strong>CONTINUAR</strong>;
@@ -710,7 +717,7 @@ CronoTacografo\
         </ol>
 
         <h3 id="s6_3">6.3 Estágio 2 — Parada inicial (2 minutos)</h3>
-        <figure><img class="manual-img" loading="lazy" src="telaEnsaioEstagio2.png" alt="Estágio 2 — parada inicial de 2 minutos">
+        <figure><img class="manual-img" loading="eager" decoding="async" src="telaEnsaioEstagio2.png" alt="Estágio 2 — parada inicial de 2 minutos">
           <figcaption>Figura 12 — Estágio 2: parada inicial (2 minutos)</figcaption></figure>
         <ul>
           <li>O sistema registra o <strong>tempo inicial</strong> do ensaio;</li>
@@ -720,7 +727,7 @@ CronoTacografo\
         </ul>
 
         <h3 id="s6_4">6.4 Estágio 3 — Ensaio dinâmico (45–55 km/h por 2.000 m)</h3>
-        <figure><img class="manual-img" loading="lazy" src="telaEnsaioEstagio3.png" alt="Estágio 3 — ensaio dinâmico (gráfico velocidade x tempo)">
+        <figure><img class="manual-img" loading="eager" decoding="async" src="telaEnsaioEstagio3.png" alt="Estágio 3 — ensaio dinâmico (gráfico velocidade x tempo)">
           <figcaption>Figura 13 — Estágio 3: ensaio dinâmico (45–55 km/h) com gráfico em tempo real</figcaption></figure>
         <ol>
           <li>Mantenha a velocidade entre <strong>45 e 55 km/h</strong> por <strong>2.000 metros</strong>;</li>
@@ -742,7 +749,7 @@ CronoTacografo\
         avança para a aba <strong>RESULTADO</strong> e desabilita as linhas de referência do gráfico.</p>
 
         <h3 id="s6_6">6.6 Estágio 5 — Resultados, XML e envio ao Inmetro</h3>
-        <figure><img class="manual-img" loading="lazy" src="telaEnsaioResultado.png" alt="Estágio 5 — resultados do ensaio">
+        <figure><img class="manual-img" loading="eager" decoding="async" src="telaEnsaioResultado.png" alt="Estágio 5 — resultados do ensaio">
           <figcaption>Figura 14 — Estágio 5 (RESULTADO): pneu, velocidade, desvio padrão e distância</figcaption></figure>
         <p>O sistema exibe:</p>
         <table>
@@ -762,7 +769,7 @@ CronoTacografo\
           <tr><td style="color:#6c757d;font-weight:bold;">BRANCO / ASSINADO</td><td>Dados seguros no PC, mas falha de rede/envio</td><td><strong>Não refaça o ensaio!</strong> Reenvie pelo Banco de relatórios quando a internet voltar.</td></tr>
           <tr><td style="color:#dc3545;font-weight:bold;">VERMELHO / ERRO (500, 600…3600)</td><td>Rejeição do Inmetro (dados inválidos ou XML mal-formado)</td><td><strong>Refaça o ensaio.</strong> Consulte a mensagem de erro específica.</td></tr>
         </table>
-        <figure><img class="manual-img" loading="lazy" src="telaRespostaServidor.png" alt="Resposta do webservice do Inmetro">
+        <figure><img class="manual-img" loading="eager" decoding="async" src="telaRespostaServidor.png" alt="Resposta do webservice do Inmetro">
           <figcaption>Figura 15 — Resposta do webservice do Inmetro</figcaption></figure>
         <div class="nota">Clique <strong>VISUALISAR RELATÓRIO</strong> no resultado para ir ao Banco de relatórios.</div>
       </section>
@@ -781,7 +788,7 @@ CronoTacografo\
           <li><strong>Reenviar XML:</strong> reenvia ao Inmetro (útil após falha de rede);</li>
           <li><strong>Calendário 📅:</strong> abre o filtro por período.</li>
         </ul>
-        <figure><img class="manual-img" loading="lazy" src="telaRelatorio.png" alt="Banco de relatórios de ensaio">
+        <figure><img class="manual-img" loading="eager" decoding="async" src="telaRelatorio.png" alt="Banco de relatórios de ensaio">
           <figcaption>Figura 16 — Banco de relatórios de ensaio</figcaption></figure>
 
         <h3 id="s7_2">7.2 Relatório individual</h3>
@@ -917,6 +924,34 @@ CronoTacografo\
 </div>
 
 <script>
+async function exportarPDF() {
+  var btn = document.getElementById('btnPrint');
+  var orig = btn ? btn.textContent : 'Salvar como PDF';
+  if (btn) { btn.disabled = true; btn.textContent = 'Preparando PDF...'; }
+  try {
+    var imgs = Array.from(document.images);
+    imgs.forEach(function(img) {
+      try { img.loading = 'eager'; } catch(e) {}
+      if (!img.complete && img.getAttribute('src')) {
+        var rect = img.getBoundingClientRect();
+      }
+    });
+    await Promise.all(imgs.map(function(img) {
+      if (img.complete && img.naturalWidth !== 0) return Promise.resolve();
+      if (img.decode) return img.decode().catch(function(){});
+      return new Promise(function(res) {
+        var done = function(){ res(); };
+        img.addEventListener('load', done, {once:true});
+        img.addEventListener('error', done, {once:true});
+        setTimeout(done, 4000);
+      });
+    }));
+    await new Promise(function(r){ setTimeout(r, 350); });
+    window.print();
+  } finally {
+    setTimeout(function(){ if(btn){ btn.disabled=false; btn.textContent=orig; } }, 1000);
+  }
+}
 document.addEventListener('click', function(e) {
   var sidebar = document.getElementById('sidebar');
   var hamburger = document.getElementById('hamburgerBtn');
