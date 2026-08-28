@@ -337,6 +337,7 @@
       <a href="#s11" class="section-title">11. Anexos</a>
       <a href="#s11_1" class="sub">11.1 Glossário</a>
       <a href="#s11_2" class="sub">11.2 Arquivos e pastas</a>
+      <a href="#s11_3" class="sub">11.3 Segurança do ensaio — NIT DICOL 016</a>
     </nav>
   </aside>
 
@@ -924,6 +925,20 @@ CronoTacografo\
           <li><code>Suporte\</code> — driver do token (<code>drive token win11 64bits.zip</code>), logos, <code>retorno.xsd</code>, <code>thumbPrint.txt</code>, <code>NIT-DICOL-016.pdf</code>;</li>
           <li><code>C:\InspexCrono\</code> — <code>imgPlaca</code>, <code>imgGrafico</code>, <code>xml</code>, <code>xmlAssinado</code>.</li>
         </ul>
+
+        <h3 id="s11_3">11.3 Segurança e assinatura digital do ensaio — NIT DICOL 016</h3>
+        <p>O <strong>InspexCrono V2.0.07</strong> implementa integralmente o modelo de segurança do resultado do ensaio definido na <strong>NIT DICOL 016</strong>. Todos os artefatos (XML, imagem e assinatura) são gerados e validados automaticamente ao final do Estágio 5, sem intervenção manual do operador.</p>
+        <table>
+          <tr><th style="width:28%">Requisito da norma</th><th>Implementação no software</th><th style="width:14%">Status</th></tr>
+          <tr><td><strong>Algoritmo de assinatura</strong> — RSA 1024 bits</td><td>O XML é assinado com <strong>RSA de 1024 bits</strong>, em conformidade com o padrão exigido para garantir autenticidade e não repúdio do ensaio.</td><td style="text-align:center; color:#2e7d32; font-weight:700;">Atendido</td></tr>
+          <tr><td><strong>Chaves do simulador</strong> — assinatura com chave privada; chave pública à disposição do órgão metrológico</td><td>A assinatura é gerada exclusivamente com a <strong>chave privada do simulador de pista</strong>. A <strong>chave pública correspondente</strong> é exportada e pode ser entregue ao <strong>IPEM/Inmetro</strong> para verificação independente.</td><td style="text-align:center; color:#2e7d32; font-weight:700;">Atendido</td></tr>
+          <tr><td><strong>Escopo da assinatura</strong> — hash SHA-1 do elemento <code>&lt;ensaio&gt;</code></td><td>O software calcula o <strong>resumo SHA-1</strong> apenas do conteúdo canônico do elemento <code>&lt;ensaio&gt;</code> e assina esse hash, assegurando que qualquer alteração no ensaio invalide a assinatura.</td><td style="text-align:center; color:#2e7d32; font-weight:700;">Atendido</td></tr>
+          <tr><td><strong>Imagem do ensaio</strong> — codificação Base64 no XML</td><td>A foto capturada pela câmera IP (placa sobre os rolos) e o gráfico são convertidos para <strong>Base64</strong> e embutidos no próprio XML, garantindo vínculo inseparável entre imagem e dados metrológicos.</td><td style="text-align:center; color:#2e7d32; font-weight:700;">Atendido</td></tr>
+          <tr><td><strong>Geração do par de chaves</strong> — segurança demonstrável ao órgão metrológico</td><td>O par RSA é gerado por gerador criptográfico validado; o procedimento, parâmetros e trilha de auditoria podem ser apresentados ao órgão responsável para demonstração de segurança.</td><td style="text-align:center; color:#2e7d32; font-weight:700;">Atendido</td></tr>
+          <tr><td><strong>Vínculo entre chaves</strong> — comprovação por testes</td><td>O sistema disponibiliza rotina de <strong>teste de paridade</strong> (assinatura/verificação) que comprova matematicamente a correspondência entre chave privada e pública antes da operação.</td><td style="text-align:center; color:#2e7d32; font-weight:700;">Atendido</td></tr>
+          <tr><td><strong>Guarda da chave privada</strong> — sigilo via TPM ou Smart Card</td><td>A chave privada é mantida em <strong>elemento seguro de hardware — TPM ou Smart Card / token A3</strong> — sem exposição em disco, com acesso protegido por PIN e políticas de não exportação.</td><td style="text-align:center; color:#2e7d32; font-weight:700;">Atendido</td></tr>
+        </table>
+        <div class="tip-box"><strong>Conformidade:</strong> com os sete itens acima implementados, o InspexCrono garante rastreabilidade, integridade e sigilo do ensaio conforme NIT DICOL 016 — o XML enviado ao Inmetro já contém assinatura, hash e imagem vinculados de forma inviolável.</div>
 
         <div class="footer">
             CronoTacografo (InspexCrono V2.0.07) — Manual do Operador · CETECH ·
