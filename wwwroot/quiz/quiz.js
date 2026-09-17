@@ -3,10 +3,19 @@
 
 (() => {
   // ---------- Estado ----------
+  const TOTAL_QUESTOES = 9;
   let quiz = null;          // { materia, assunto, questoes: [...] }
   let indiceAtual = 0;
   let acertos = { facil: 0, medio: 0, dificil: 0 };
   let respostas = [];       // { indiceAlternativa, acertou }
+  let carregandoProxima = false;
+
+  function nivelPorIndice(i) {
+    return i < 3 ? "facil" : i < 6 ? "medio" : "dificil";
+  }
+  function pontosPorNivel(nivel) {
+    return nivel === "facil" ? 1 : nivel === "medio" ? 2 : 3;
+  }
 
   // ---------- Utilidades de tela ----------
   const telas = {
@@ -25,7 +34,38 @@
 
   const $ = (id) => document.getElementById(id);
 
-  // ---------- Config ----------
+  // ---------- Config (1 questão por vez + prefetch) ----------
+  async function fetchQuestao(materia, assunto, nivel, evitar) {
+    const resp = await fetch("/quiz/question", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ materia, assunto, nivel, evitarEnunciados: evitar }),
+    });
+    if (!resp.ok) {
+      const texto = await resp.text();
+      throw new Error(texto || `Erro ${resp.status}`);
+    }
+    return await resp.json();
+  }
+
+  function evitarEnunciados() {
+    return (quiz?.questoes || []).map((q) => q.enunciado).slice(-8);
+  }
+
+  // Busca a próxima questão em background enquanto o usuário responde a atual.
+  async function prefetchProxima() {
+    if (!quiz || carregandoProxima || quiz.questoes.length >= TOTAL_QUESTOES) return;
+    carregandoProxima = true;
+    try {
+      const nivel = nivelPorIndice(quiz.questoes.length);
+      const q = await fetchQuestao(quiz.materia, quiz.assunto, nivel, evitarEnunciados());
+      quiz.questoes.push(q);
+    } catch (err) {
+      console.warn("Prefetch falhou, tenta de novo ao avançar:", err);
+    } finally {
+      carregandoProxima = false;
+    }
+  }
   $("form-config").addEventListener("submit", async (ev) => {
     ev.preventDefault();
     const materia = $("materia").value;
@@ -45,24 +85,18 @@
     btn.textContent = "Gerando…";
 
     try {
-      const resp = await fetch("/quiz/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ materia, assunto }),
-      });
+      // Mostra loading imediatamente (antes estava sem feedback) e busca só a 1ª questão.
+      mostrarLoading(materia, assunto, 1);
+      const primeira = await fetchQuestao(materia, assunto, nivelPorIndice(0), []);
 
-      if (!resp.ok) {
-        const texto = await resp.text();
-        throw new Error(texto || `Erro ${resp.status}`);
-      }
-
-      quiz = await resp.json();
+      quiz = { materia, assunto, questoes: [primeira] };
       iniciarQuiz();
+      prefetchProxima(); // já adianta a 2ª em background
     } catch (err) {
       console.error(err);
       mostrarTela("erro");
       $("mensagem-erro").textContent =
-        "Não foi possível gerar o quiz. " +
+        "Não foi possível gerar a primeira pergunta. " +
         (err.message && err.message.length < 200 ? err.message : "Tente novamente em instantes.");
     } finally {
       btn.disabled = false;
@@ -71,8 +105,9 @@
   });
 
   // ---------- Loading ----------
-  function mostrarLoading(materia, assunto) {
+  function mostrarLoading(materia, assunto, etapa) {
     $("loading-assunto").textContent = `${materia} — ${assunto}`;
+    if (etapa && $("loading-status")) $("loading-status").textContent = `Gerando pergunta ${etapa} de ${TOTAL_QUESTOES}…`;
     mostrarTela("loading");
   }
 
@@ -81,6 +116,7 @@
     indiceAtual = 0;
     acertos = { facil: 0, medio: 0, dificil: 0 };
     respostas = [];
+    carregandoProxima = false;
     $("quiz-materia-assunto").textContent = `${quiz.materia} • ${quiz.assunto}`;
     mostrarTela("quiz");
     renderPergunta();
@@ -93,15 +129,25 @@
   function renderPergunta() {
     const q = quiz.questoes[indiceAtual];
 
-    // Topo
-    $("quiz-progresso").textContent = `Pergunta ${indiceAtual + 1} de ${quiz.questoes.length}`;
-    $("barra-preenchida").style.width = `${(indiceAtual / quiz.questoes.length) * 100}%`;
+    // Se a próxima ainda não chegou (prefetch atrasou), mostra espera curta.
+    if (!q) {
+      $("quiz-progresso").textContent = `Pergunta ${indiceAtual + 1} de ${TOTAL_QUESTOES}`;
+      $("enunciado").textContent = "Gerando próxima pergunta… 🐝";
+      $("alternativas").innerHTML = "";
+      $("feedback").classList.add("escondido");
+      $("btn-proxima").classList.add("escondido");
+      return;
+    }
+
+    // Topo (total fixo em 9, não no que já chegou)
+    $("quiz-progresso").textContent = `Pergunta ${indiceAtual + 1} de ${TOTAL_QUESTOES}`;
+    $("barra-preenchida").style.width = `${(indiceAtual / TOTAL_QUESTOES) * 100}%`;
 
     // Cabeçalho
     const badge = $("badge-nivel");
     badge.textContent = rotuloNivel(q.nivel);
     badge.className = `badge ${q.nivel}`;
-    $("pergunta-num").textContent = `Vale ${q.nivel === "facil" ? "1" : q.nivel === "medio" ? "2" : "3"} ponto(s)`;
+    $("pergunta-num").textContent = `Vale ${pontosPorNivel(q.nivel)} ponto(s)`;
 
     // Enunciado e alternativas
     $("enunciado").textContent = q.enunciado;
@@ -147,29 +193,53 @@
       : `<strong>❌ Você errou.</strong>`;
     fb.appendChild(document.createTextNode(q.explicacaoCurta));
 
-    // Botão próxima / ver resultado
+    // Botão próxima / ver resultado (baseado no total, não no que já baixou)
     const btnProx = $("btn-proxima");
     btnProx.textContent =
-      indiceAtual === quiz.questoes.length - 1 ? "Ver resultado 🏁" : "Próxima pergunta →";
+      indiceAtual === TOTAL_QUESTOES - 1 ? "Ver resultado 🏁" : "Próxima pergunta →";
     btnProx.classList.remove("escondido");
+
+    // Já adianta a próxima enquanto o usuário lê o feedback.
+    prefetchProxima();
   }
 
-  $("btn-proxima").addEventListener("click", () => {
+  $("btn-proxima").addEventListener("click", async () => {
+    const btn = $("btn-proxima");
     if (indiceAtual < quiz.questoes.length - 1) {
       indiceAtual += 1;
       renderPergunta();
-    } else {
-      mostrarResultado();
+      prefetchProxima();
+      return;
     }
+    if (quiz.questoes.length < TOTAL_QUESTOES) {
+      // Próxima ainda gerando: aguarda (prefetch já em curso ou busca direta).
+      btn.disabled = true;
+      btn.textContent = "Gerando próxima… 🐝";
+      try {
+        if (!carregandoProxima) await prefetchProxima();
+        else while (carregandoProxima) await new Promise((r) => setTimeout(r, 300));
+        if (quiz.questoes.length <= indiceAtual) throw new Error("falha ao gerar");
+      } catch {
+        btn.disabled = false;
+        btn.textContent = "Tentar de novo 🔄";
+        return;
+      }
+      btn.disabled = false;
+      indiceAtual += 1;
+      renderPergunta();
+      prefetchProxima();
+      return;
+    }
+    mostrarResultado();
   });
 
   // ---------- Resultado ----------
   function mostrarResultado() {
     $("barra-preenchida").style.width = "100%";
 
-    const total = quiz.questoes.length;
+    const total = TOTAL_QUESTOES;
     const pontos = acertos.facil * 1 + acertos.medio * 2 + acertos.dificil * 3;
-    const pontosMax = 3 * 1 + 3 * 2 + 3 * 3; // 18
+    const pontosMax = quiz.questoes.reduce((s, q) => s + pontosPorNivel(q.nivel), 0);
     const totalAcertos = acertos.facil + acertos.medio + acertos.dificil;
     const percentual = Math.round((totalAcertos / total) * 100);
 
@@ -188,7 +258,8 @@
     Object.entries(acertos).forEach(([nivel, qtd]) => {
       const chip = document.createElement("span");
       chip.className = `nivel-chip ${nivel}`;
-      chip.textContent = `${rotuloNivel(nivel)}: ${qtd}/3`;
+      const totalNivel = quiz.questoes.filter((q) => q.nivel === nivel).length;
+      chip.textContent = `${rotuloNivel(nivel)}: ${qtd}/${totalNivel}`;
       niveisEl.appendChild(chip);
     });
 

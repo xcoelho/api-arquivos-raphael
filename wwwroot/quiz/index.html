@@ -13,7 +13,7 @@
     <section id="tela-config" class="tela">
       <header class="topo">
         <h1>🐝 QuizBee</h1>
-        <p>Escolha a matéria, digite o assunto e a IA cria um quiz com 9 perguntas para você treinar!</p>
+        <p>Escolha a matéria, digite o assunto e a IA cria um quiz com 9 perguntas para você treinar! As perguntas aparecem uma por vez.</p>
       </header>
 
       <form id="form-config" class="card">
@@ -43,7 +43,8 @@
       <div class="loading">
         <div class="abelha">🐝</div>
         <h2>Criando seu quiz…</h2>
-        <p>A IA está elaborando 9 perguntas sobre <strong id="loading-assunto"></strong>. Pode levar alguns segundos.</p>
+        <p>A IA está elaborando 1 pergunta por vez sobre <strong id="loading-assunto"></strong>.</p>
+        <p id="loading-status">Gerando pergunta 1 de 9…</p>
         <div class="spinner"></div>
       </div>
     </section>
