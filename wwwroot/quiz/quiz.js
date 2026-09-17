@@ -126,6 +126,15 @@
     return nivel === "facil" ? "Fácil" : nivel === "medio" ? "Médio" : "Difícil";
   }
 
+  // A IA às vezes devolve "a) texto" — remove o prefixo pois o marcador A) já é exibido.
+  function limparAlternativa(t) {
+    let s = (t || "").trim();
+    if (!s) return s;
+    s = s.replace(/^\s*alternativa\s+[A-Ea-e1-5]?\s*[:\-).\]]?\s*/i, "").trimStart();
+    const sem = s.replace(/^\s*\(?\s*[A-Ea-e1-5]\s*[).:\-\]]\s*/, "").trimStart();
+    return sem.length > 0 ? sem : s.trim();
+  }
+
   function renderPergunta() {
     const q = quiz.questoes[indiceAtual];
 
@@ -160,7 +169,7 @@
       btn.type = "button";
       btn.className = "alternativa";
       btn.innerHTML = `<span class="marcador">${letras[i]})</span> `;
-      btn.appendChild(document.createTextNode(texto));
+      btn.appendChild(document.createTextNode(limparAlternativa(texto)));
       btn.addEventListener("click", () => responder(i));
       container.appendChild(btn);
     });
@@ -303,7 +312,7 @@
         if (i === resposta.indiceEscolhido) marcador += " ✍️";
         if (i === q.indiceCorreta) marcador += " ✅";
         div.innerHTML = `<span class="marcador">${marcador}</span> `;
-        div.appendChild(document.createTextNode(texto));
+        div.appendChild(document.createTextNode(limparAlternativa(texto)));
         item.appendChild(div);
       });
 

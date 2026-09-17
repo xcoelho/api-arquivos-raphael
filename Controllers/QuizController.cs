@@ -32,6 +32,12 @@ namespace MeuServidor.Controllers
             BaseAddress = new Uri("https://integrate.api.nvidia.com/v1/")
         };
 
+        private static readonly HttpClient GoogleHttp = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(60),
+            BaseAddress = new Uri("https://generativelanguage.googleapis.com/")
+        };
+
         private readonly ILogger<QuizController> _logger;
 
         public QuizController(ILogger<QuizController> logger)
@@ -91,9 +97,11 @@ namespace MeuServidor.Controllers
             if (!MateriasValidas.Contains(materia, StringComparer.OrdinalIgnoreCase))
                 return BadRequest("Matéria inválida.");
 
-            var apiKey = Environment.GetEnvironmentVariable("NVIDIA_API_KEY");
-            if (string.IsNullOrWhiteSpace(apiKey))
-                return StatusCode(500, "Servidor sem NVIDIA_API_KEY configurada. Defina a variável de ambiente.");
+            var nvidiaKey = Environment.GetEnvironmentVariable("NVIDIA_API_KEY");
+            var googleKey = Environment.GetEnvironmentVariable("GOOGLE_API_KEY")
+                ?? Environment.GetEnvironmentVariable("GEMINI_API_KEY");
+            if (string.IsNullOrWhiteSpace(nvidiaKey) && string.IsNullOrWhiteSpace(googleKey))
+                return StatusCode(500, "Servidor sem chave de IA configurada. Defina GOOGLE_API_KEY ou NVIDIA_API_KEY.");
 
             var evitar = (request.EvitarEnunciados ?? new List<string>())
                 .Where(s => !string.IsNullOrWhiteSpace(s))
@@ -101,26 +109,51 @@ namespace MeuServidor.Controllers
                 .Select(s => s.Length > 120 ? s.Substring(0, 120) : s)
                 .ToList();
 
-            for (int tentativa = 1; tentativa <= 2; tentativa++)
+            // Principal: Google. Reserva: NVIDIA (cai para cá em 429/cota ou JSON inválido).
+            if (!string.IsNullOrWhiteSpace(googleKey))
             {
-                try
+                for (int tentativa = 1; tentativa <= 2; tentativa++)
                 {
-                    var q = await GerarUmaQuestaoViaNvidiaAsync(apiKey, materia, assunto, nivel, evitar, tentativa, ct);
-                    if (q != null)
-                        return Ok(q);
-                    _logger.LogWarning("Tentativa {Tentativa}: 1 questão veio inválida.", tentativa);
+                    try
+                    {
+                        var q = await GerarUmaQuestaoViaGoogleAsync(googleKey, materia, assunto, nivel, evitar, tentativa, ct);
+                        if (q != null)
+                            return Ok(q);
+                        _logger.LogWarning("Google tentativa {Tentativa}: questão inválida.", tentativa);
+                    }
+                    catch (OperationCanceledException) { throw; }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Google tentativa {Tentativa}: erro, tentando reserva.", tentativa);
+                        break; // cota/erro: vai direto para a reserva sem gastar mais cota
+                    }
                 }
-                catch (OperationCanceledException) { throw; }
-                catch (Exception ex)
+                _logger.LogWarning("Google falhou, usando NVIDIA como reserva.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(nvidiaKey))
+            {
+                for (int tentativa = 1; tentativa <= 2; tentativa++)
                 {
-                    _logger.LogError(ex, "Tentativa {Tentativa}: erro ao gerar 1 questão.", tentativa);
+                    try
+                    {
+                        var q = await GerarUmaQuestaoViaNvidiaAsync(nvidiaKey, materia, assunto, nivel, evitar, tentativa, ct);
+                        if (q != null)
+                            return Ok(q);
+                        _logger.LogWarning("Tentativa {Tentativa}: 1 questão veio inválida.", tentativa);
+                    }
+                    catch (OperationCanceledException) { throw; }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Tentativa {Tentativa}: erro ao gerar 1 questão.", tentativa);
+                    }
                 }
             }
 
             return StatusCode(502, "A IA não conseguiu gerar a próxima pergunta. Tente novamente.");
         }
 
-        private async Task<QuestaoDTO?> GerarUmaQuestaoViaNvidiaAsync(string apiKey, string materia, string assunto, string nivel, List<string> evitar, int tentativa, CancellationToken ct)
+        private static (string Sistema, string Usuario) PromptUmaQuestao(string materia, string assunto, string nivel, List<string> evitar, int tentativa)
         {
             string descricaoNivel = nivel == "facil" ? "fácil (conceito básico, recordação direta)"
                 : nivel == "medio" ? "médio (interpretação e aplicação simples)"
@@ -143,13 +176,59 @@ namespace MeuServidor.Controllers
             sb.Append("{\n");
             sb.Append($"  \"nivel\": \"{nivel}\",\n");
             sb.Append("  \"enunciado\": \"texto da pergunta\",\n");
-            sb.Append("  \"alternativas\": [\"a\", \"b\", \"c\", \"d\", \"e\"],\n");
+            sb.Append("  \"alternativas\": [\"texto puro 1\", \"texto puro 2\", \"texto puro 3\", \"texto puro 4\", \"texto puro 5\"],\n");
             sb.Append("  \"indiceCorreta\": 0,\n");
             sb.Append("  \"explicacaoCurta\": \"1-2 frases do porquê a correta está certa\",\n");
             sb.Append("  \"explicacaoCompleta\": \"explicação didática (3-6 frases), incluindo por que as principais erradas estão erradas\"\n");
             sb.Append("}\n");
+            sb.Append("IMPORTANTE: cada alternativa com SOMENTE o texto puro, SEM prefixo de letra ou número (não use \"a)\", \"A.\", \"1)\" etc).\n");
             if (tentativa > 1)
                 sb.Append("ATENÇÃO: a tentativa anterior veio fora do formato. Siga EXATAMENTE o esquema acima.\n");
+
+            return (sistema, sb.ToString());
+        }
+
+        private async Task<QuestaoDTO?> GerarUmaQuestaoViaGoogleAsync(string apiKey, string materia, string assunto, string nivel, List<string> evitar, int tentativa, CancellationToken ct)
+        {
+            var (sistema, usuario) = PromptUmaQuestao(materia, assunto, nivel, evitar, tentativa);
+            var model = Environment.GetEnvironmentVariable("GOOGLE_MODEL") ?? "gemma-3-27b-it";
+
+            var body = new Dictionary<string, object?>
+            {
+                ["system_instruction"] = new Dictionary<string, object?> { ["parts"] = new object[] { new Dictionary<string, string> { ["text"] = sistema } } },
+                ["contents"] = new object[] { new Dictionary<string, object?> { ["role"] = "user", ["parts"] = new object[] { new Dictionary<string, string> { ["text"] = usuario } } } },
+                ["generationConfig"] = new Dictionary<string, object?> { ["temperature"] = 0.8, ["topP"] = 0.95, ["maxOutputTokens"] = 1200, ["responseMimeType"] = "application/json" }
+            };
+
+            using var req = new HttpRequestMessage(HttpMethod.Post, $"v1beta/models/{model}:generateContent")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json")
+            };
+            req.Headers.Add("x-goog-api-key", apiKey);
+
+            using var response = await GoogleHttp.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                var erro = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogError("Google API retornou {Status}: {Erro}", (int)response.StatusCode, Truncar(erro, 500));
+                return null;
+            }
+
+            using var docResp = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+            if (!docResp.RootElement.TryGetProperty("candidates", out var cands) || cands.GetArrayLength() == 0)
+                return null;
+            var parts = cands[0].GetProperty("content").GetProperty("parts");
+            if (parts.GetArrayLength() == 0) return null;
+            var texto = parts[0].GetProperty("text").GetString() ?? "";
+
+            var lista = ExtrairQuestoes("{\"questoes\":[" + ExtrairObjeto(texto) + "]}");
+            if (lista == null || lista.Count != 1) return null;
+            return lista[0] with { Nivel = nivel };
+        }
+
+        private async Task<QuestaoDTO?> GerarUmaQuestaoViaNvidiaAsync(string apiKey, string materia, string assunto, string nivel, List<string> evitar, int tentativa, CancellationToken ct)
+        {
+            var (sistema, usuario) = PromptUmaQuestao(materia, assunto, nivel, evitar, tentativa);
 
             var body = new Dictionary<string, object?>
             {
@@ -157,7 +236,7 @@ namespace MeuServidor.Controllers
                 ["messages"] = new object[]
                 {
                     new Dictionary<string, string> { ["role"] = "system", ["content"] = sistema },
-                    new Dictionary<string, string> { ["role"] = "user", ["content"] = sb.ToString() }
+                    new Dictionary<string, string> { ["role"] = "user", ["content"] = usuario }
                 },
                 ["temperature"] = 0.8,
                 ["top_p"] = 0.95,
@@ -223,7 +302,8 @@ namespace MeuServidor.Controllers
                 "    {\n" +
                 "      \"nivel\": \"facil\" | \"medio\" | \"dificil\",\n" +
                 "      \"enunciado\": \"texto da pergunta\",\n" +
-                "      \"alternativas\": [\"a\", \"b\", \"c\", \"d\", \"e\"],\n" +
+                "      \"alternativas\": [\"texto puro 1\", \"texto puro 2\", \"texto puro 3\", \"texto puro 4\", \"texto puro 5\"],\n" +
+                "      // IMPORTANTE: cada alternativa SOMENTE o texto puro, SEM prefixo de letra/número (não use \"a)\", \"A.\", \"1)\" etc).\n" +
                 "      \"indiceCorreta\": 0,\n" +
                 "      \"explicacaoCurta\": \"frase curta (1-2 frases) do porquê a correta está certa — feedback imediato\",\n" +
                 "      \"explicacaoCompleta\": \"explicação didática detalhada (3-6 frases), incluindo por que as principais alternativas erradas estão erradas\"\n" +
@@ -330,7 +410,7 @@ namespace MeuServidor.Controllers
                     var alternativas = new List<string>();
                     if (q.TryGetProperty("alternativas", out var altEl) && altEl.ValueKind == JsonValueKind.Array)
                         foreach (var a in altEl.EnumerateArray())
-                            alternativas.Add(a.ValueKind == JsonValueKind.String ? a.GetString() ?? "" : a.ToString());
+                            alternativas.Add(LimparAlternativa(a.ValueKind == JsonValueKind.String ? a.GetString() ?? "" : a.ToString()));
 
                     // Sanidade mínima: enunciado, 5 alternativas e índice válido.
                     if (enunciado.Length == 0 || alternativas.Count != 5 || indiceCorreta < 0 || indiceCorreta > 4)
@@ -346,6 +426,17 @@ namespace MeuServidor.Controllers
             {
                 return null;
             }
+        }
+
+        private static string LimparAlternativa(string s)
+        {
+            var t = (s ?? "").Trim();
+            if (t.Length == 0) return t;
+            // "Alternativa A: texto" -> remove o prefixo.
+            t = System.Text.RegularExpressions.Regex.Replace(t, @"^\s*alternativa\s+[A-Ea-e1-5]?\s*[:\-\)\.\]]?\s*", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase).TrimStart();
+            // "a) texto", "(A) texto", "A. texto", "1) texto" -> remove a letra/número inicial.
+            var semLetra = System.Text.RegularExpressions.Regex.Replace(t, @"^\(?\s*[A-Ea-e1-5]\s*[\)\.\:\-\]]\s*", "").TrimStart();
+            return semLetra.Length > 0 ? semLetra : t;
         }
 
         private static string NormalizarNivel(string nivel, int posicao)
