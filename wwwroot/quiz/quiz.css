@@ -130,6 +130,7 @@ body {
 }
 .provedor.google { background: #e8f0fe; color: #1a73e8; border-color: #1a73e8; }
 .provedor.nvidia { background: #f0f9e8; color: #2e7d00; border-color: #76b900; }
+.provedor.zen { background: #f3e8fd; color: #6d28d9; border-color: #6d28d9; }
 
 .barra-progresso {
   height: 8px;

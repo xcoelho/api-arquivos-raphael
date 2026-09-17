@@ -126,7 +126,10 @@
     return nivel === "facil" ? "Fácil" : nivel === "medio" ? "Médio" : "Difícil";
   }
 
-  // Selo do provedor que gerou a pergunta atual (google ou nvidia).
+  // Selo do provedor que gerou a pergunta atual (google, nvidia ou zen).
+  function rotuloProvedor(provedor) {
+    return provedor === "google" ? "G Google" : provedor === "zen" ? "Z Zen" : "N NVIDIA";
+  }
   function atualizarProvedor(provedor) {
     const el = $("quiz-provedor");
     if (!provedor) {
@@ -134,13 +137,8 @@
       return;
     }
     el.classList.remove("escondido");
-    if (provedor === "google") {
-      el.textContent = "G Google";
-      el.className = "provedor google";
-    } else {
-      el.textContent = "N NVIDIA";
-      el.className = "provedor nvidia";
-    }
+    el.textContent = rotuloProvedor(provedor);
+    el.className = `provedor ${provedor}`;
   }
 
   // A IA às vezes devolve "a) texto" — remove o prefixo pois o marcador A) já é exibido.
@@ -316,7 +314,7 @@
       if (q.provedor) {
         const prov = document.createElement("span");
         prov.className = `provedor ${q.provedor}`;
-        prov.textContent = q.provedor === "google" ? "G Google" : "N NVIDIA";
+        prov.textContent = rotuloProvedor(q.provedor);
         cab.appendChild(prov);
       }
       item.appendChild(cab);

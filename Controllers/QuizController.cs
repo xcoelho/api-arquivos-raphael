@@ -39,6 +39,12 @@ namespace MeuServidor.Controllers
             BaseAddress = new Uri("https://generativelanguage.googleapis.com/")
         };
 
+        private static readonly HttpClient ZenHttp = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(60),
+            BaseAddress = new Uri("https://opencode.ai/zen/v1/")
+        };
+
         private readonly ILogger<QuizController> _logger;
 
         public QuizController(ILogger<QuizController> logger)
@@ -101,8 +107,10 @@ namespace MeuServidor.Controllers
             var nvidiaKey = Environment.GetEnvironmentVariable("NVIDIA_API_KEY");
             var googleKey = Environment.GetEnvironmentVariable("GOOGLE_API_KEY")
                 ?? Environment.GetEnvironmentVariable("GEMINI_API_KEY");
-            if (string.IsNullOrWhiteSpace(nvidiaKey) && string.IsNullOrWhiteSpace(googleKey))
-                return StatusCode(500, "Servidor sem chave de IA configurada. Defina GOOGLE_API_KEY ou NVIDIA_API_KEY.");
+            var zenKey = Environment.GetEnvironmentVariable("ZEN_API_KEY")
+                ?? Environment.GetEnvironmentVariable("OPENCODE_ZEN_API_KEY");
+            if (string.IsNullOrWhiteSpace(nvidiaKey) && string.IsNullOrWhiteSpace(googleKey) && string.IsNullOrWhiteSpace(zenKey))
+                return StatusCode(500, "Servidor sem chave de IA configurada. Defina GOOGLE_API_KEY, NVIDIA_API_KEY ou ZEN_API_KEY.");
 
             var evitar = (request.EvitarEnunciados ?? new List<string>())
                 .Where(s => !string.IsNullOrWhiteSpace(s))
@@ -147,6 +155,26 @@ namespace MeuServidor.Controllers
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "Tentativa {Tentativa}: erro ao gerar 1 questão.", tentativa);
+                    }
+                }
+            }
+
+            // Terceira opção: OpenCode Zen (modelos grátis inclusos, ex. nemotron-3.5-lightning-free).
+            if (!string.IsNullOrWhiteSpace(zenKey))
+            {
+                for (int tentativa = 1; tentativa <= 2; tentativa++)
+                {
+                    try
+                    {
+                        var q = await GerarUmaQuestaoViaZenAsync(zenKey, materia, assunto, nivel, evitar, tentativa, ct);
+                        if (q != null)
+                            return Ok(q);
+                        _logger.LogWarning("Zen tentativa {Tentativa}: questão inválida.", tentativa);
+                    }
+                    catch (OperationCanceledException) { throw; }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Zen tentativa {Tentativa}: erro.", tentativa);
                     }
                 }
             }
@@ -227,6 +255,52 @@ namespace MeuServidor.Controllers
             var lista = ExtrairQuestoes("{\"questoes\":[" + ExtrairObjeto(texto) + "]}");
             if (lista == null || lista.Count != 1) return null;
             return lista[0] with { Nivel = nivel, Provedor = "google" };
+        }
+
+        // OpenCode Zen: endpoint OpenAI-compatível (chat/completions) com Bearer key.
+        private async Task<QuestaoDTO?> GerarUmaQuestaoViaZenAsync(string apiKey, string materia, string assunto, string nivel, List<string> evitar, int tentativa, CancellationToken ct)
+        {
+            var (sistema, usuario) = PromptUmaQuestao(materia, assunto, nivel, evitar, tentativa);
+            var model = Environment.GetEnvironmentVariable("ZEN_MODEL") ?? "nemotron-3.5-lightning-free";
+
+            var body = new Dictionary<string, object?>
+            {
+                ["model"] = model,
+                ["messages"] = new object[]
+                {
+                    new Dictionary<string, string> { ["role"] = "system", ["content"] = sistema },
+                    new Dictionary<string, string> { ["role"] = "user", ["content"] = usuario }
+                },
+                ["temperature"] = 0.8,
+                ["top_p"] = 0.95,
+                ["max_tokens"] = 1200,
+                ["stream"] = false
+            };
+
+            using var req = new HttpRequestMessage(HttpMethod.Post, "chat/completions")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json")
+            };
+            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+
+            using var response = await ZenHttp.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                var erro = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogError("Zen API retornou {Status}: {Erro}", (int)response.StatusCode, Truncar(erro, 500));
+                return null;
+            }
+
+            using var docResp = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+            if (!docResp.RootElement.TryGetProperty("choices", out var choices) || choices.GetArrayLength() == 0)
+                return null;
+            var msg = choices[0].GetProperty("message");
+            if (!msg.TryGetProperty("content", out var contentEl) || contentEl.ValueKind != JsonValueKind.String)
+                return null;
+
+            var lista = ExtrairQuestoes("{\"questoes\":[" + ExtrairObjeto(contentEl.GetString() ?? "") + "]}");
+            if (lista == null || lista.Count != 1) return null;
+            return lista[0] with { Nivel = nivel, Provedor = "zen" };
         }
 
         private async Task<QuestaoDTO?> GerarUmaQuestaoViaNvidiaAsync(string apiKey, string materia, string assunto, string nivel, List<string> evitar, int tentativa, CancellationToken ct)
