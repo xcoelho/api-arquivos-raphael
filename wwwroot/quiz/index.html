@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuizBee — Quiz com IA</title>
+  <link rel="stylesheet" href="quiz.css" />
+</head>
+<body>
+  <main class="container">
+
+    <!-- TELA 1: CONFIGURAÇÃO -->
+    <section id="tela-config" class="tela">
+      <header class="topo">
+        <h1>🐝 QuizBee</h1>
+        <p>Escolha a matéria, digite o assunto e a IA cria um quiz com 9 perguntas para você treinar!</p>
+      </header>
+
+      <form id="form-config" class="card">
+        <label for="materia">Matéria</label>
+        <select id="materia" required>
+          <option value="" disabled selected>Selecione a matéria…</option>
+          <option>Português</option>
+          <option>Inglês</option>
+          <option>Biologia</option>
+          <option>Química</option>
+          <option>Matemática</option>
+          <option>História</option>
+          <option>Geografia</option>
+          <option>Física</option>
+        </select>
+
+        <label for="assunto">Assunto</label>
+        <input type="text" id="assunto" maxlength="200" placeholder="Ex.: equação do segundo grau" required />
+
+        <button type="submit" id="btn-gerar" class="btn-primario">Gerar quiz</button>
+        <p id="erro-config" class="erro escondido"></p>
+      </form>
+    </section>
+
+    <!-- TELA 2: LOADING -->
+    <section id="tela-loading" class="tela escondido">
+      <div class="loading">
+        <div class="abelha">🐝</div>
+        <h2>Criando seu quiz…</h2>
+        <p>A IA está elaborando 9 perguntas sobre <strong id="loading-assunto"></strong>. Pode levar alguns segundos.</p>
+        <div class="spinner"></div>
+      </div>
+    </section>
+
+    <!-- TELA 3: QUIZ -->
+    <section id="tela-quiz" class="tela escondido">
+      <div class="quiz-topo">
+        <span id="quiz-materia-assunto" class="materia-assunto"></span>
+        <span id="quiz-progresso" class="progresso"></span>
+      </div>
+      <div class="barra-progresso"><div id="barra-preenchida"></div></div>
+
+      <article id="pergunta-card" class="card pergunta-card">
+        <div class="pergunta-cabecalho">
+          <span id="badge-nivel" class="badge"></span>
+          <span class="pergunta-num" id="pergunta-num"></span>
+        </div>
+        <h2 id="enunciado"></h2>
+        <div id="alternativas" class="alternativas"></div>
+        <div id="feedback" class="feedback escondido"></div>
+        <button id="btn-proxima" class="btn-primario escondido">Próxima pergunta →</button>
+      </article>
+    </section>
+
+    <!-- TELA 4: RESULTADO -->
+    <section id="tela-resultado" class="tela escondido">
+      <header class="topo">
+        <h1>Resultado</h1>
+      </header>
+
+      <div class="card placar">
+        <div class="placar-nota">
+          <span id="nota-final"></span>
+          <span id="nota-percentual"></span>
+        </div>
+        <p id="mensagem-desempenho"></p>
+        <div id="desempenho-niveis" class="desempenho-niveis"></div>
+        <button id="btn-novo-quiz" class="btn-primario">Fazer outro quiz</button>
+      </div>
+
+      <h2 class="titulo-revisao">Revisão — todas as perguntas com explicação</h2>
+      <div id="revisao"></div>
+    </section>
+
+    <!-- TELA ERRO -->
+    <section id="tela-erro" class="tela escondido">
+      <div class="card erro-card">
+        <h2>😕 Algo deu errado</h2>
+        <p id="mensagem-erro"></p>
+        <button id="btn-voltar" class="btn-primario">Voltar</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="quiz.js"></script>
+</body>
+</html>
