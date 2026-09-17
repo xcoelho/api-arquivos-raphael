@@ -238,7 +238,7 @@
 
     // Imagem de acerto/erro (só aparece após responder)
     const imgFb = $("feedback-img");
-    imgFb.src = acertou ? "acertou.png" : "errou.png";
+    imgFb.src = acertou ? "acertou.jpg" : "errou.jpg";
     imgFb.alt = acertou ? "Você acertou! 🎉" : "Você errou. Tente a próxima! 💪";
     imgFb.classList.remove("escondido");
 
