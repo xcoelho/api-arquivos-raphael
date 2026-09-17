@@ -118,7 +118,27 @@ namespace MeuServidor.Controllers
                 .Select(s => s.Length > 120 ? s.Substring(0, 120) : s)
                 .ToList();
 
-            // Principal: Google. Reserva: NVIDIA (cai para cá em 429/cota ou JSON inválido).
+            // Principal: NVIDIA. Reservas: Google, depois Zen.
+            if (!string.IsNullOrWhiteSpace(nvidiaKey))
+            {
+                for (int tentativa = 1; tentativa <= 2; tentativa++)
+                {
+                    try
+                    {
+                        var q = await GerarUmaQuestaoViaNvidiaAsync(nvidiaKey, materia, assunto, nivel, evitar, tentativa, ct);
+                        if (q != null)
+                            return Ok(q);
+                        _logger.LogWarning("NVIDIA tentativa {Tentativa}: 1 questão veio inválida.", tentativa);
+                    }
+                    catch (OperationCanceledException) { throw; }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "NVIDIA tentativa {Tentativa}: erro.", tentativa);
+                    }
+                }
+                _logger.LogWarning("NVIDIA falhou, usando Google como reserva.");
+            }
+
             if (!string.IsNullOrWhiteSpace(googleKey))
             {
                 for (int tentativa = 1; tentativa <= 2; tentativa++)
@@ -137,26 +157,7 @@ namespace MeuServidor.Controllers
                         break; // cota/erro: vai direto para a reserva sem gastar mais cota
                     }
                 }
-                _logger.LogWarning("Google falhou, usando NVIDIA como reserva.");
-            }
-
-            if (!string.IsNullOrWhiteSpace(nvidiaKey))
-            {
-                for (int tentativa = 1; tentativa <= 2; tentativa++)
-                {
-                    try
-                    {
-                        var q = await GerarUmaQuestaoViaNvidiaAsync(nvidiaKey, materia, assunto, nivel, evitar, tentativa, ct);
-                        if (q != null)
-                            return Ok(q);
-                        _logger.LogWarning("Tentativa {Tentativa}: 1 questão veio inválida.", tentativa);
-                    }
-                    catch (OperationCanceledException) { throw; }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Tentativa {Tentativa}: erro ao gerar 1 questão.", tentativa);
-                    }
-                }
+                _logger.LogWarning("Google falhou, usando Zen como reserva.");
             }
 
             // Terceira opção: OpenCode Zen (modelos grátis inclusos, ex. nemotron-3.5-lightning-free).
