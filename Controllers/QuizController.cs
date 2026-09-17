@@ -117,10 +117,10 @@ namespace MeuServidor.Controllers
                 },
                 ["temperature"] = 1,
                 ["top_p"] = 0.95,
-                ["max_tokens"] = 16384,
+                ["max_tokens"] = 8192,
                 ["stream"] = true,
-                ["chat_template_kwargs"] = new Dictionary<string, object?> { ["enable_thinking"] = true },
-                ["reasoning_budget"] = 16384
+                // Thinking desligado para resposta rápida (evita timeout do Render gratuito).
+                ["chat_template_kwargs"] = new Dictionary<string, object?> { ["enable_thinking"] = false }
             };
 
             var json = JsonSerializer.Serialize(body);
