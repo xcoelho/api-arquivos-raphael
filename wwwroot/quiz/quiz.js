@@ -209,6 +209,7 @@
 
     // Reset de feedback
     $("feedback").classList.add("escondido");
+    $("feedback-img").classList.add("escondido");
     $("btn-proxima").classList.add("escondido");
   }
 
@@ -234,6 +235,12 @@
       ? `<strong>✅ Você acertou!</strong>`
       : `<strong>❌ Você errou.</strong>`;
     fb.appendChild(document.createTextNode(q.explicacaoCurta));
+
+    // Imagem de acerto/erro (só aparece após responder)
+    const imgFb = $("feedback-img");
+    imgFb.src = acertou ? "acertou.png" : "errou.png";
+    imgFb.alt = acertou ? "Você acertou! 🎉" : "Você errou. Tente a próxima! 💪";
+    imgFb.classList.remove("escondido");
 
     // Botão próxima / ver resultado (baseado no total, não no que já baixou)
     const btnProx = $("btn-proxima");

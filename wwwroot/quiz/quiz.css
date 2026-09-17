@@ -143,6 +143,23 @@ body {
 
 .erro { color: var(--cor-erro); margin-top: 12px; text-align: center; }
 
+.img-inicio {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  margin: 20px auto 0;
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+}
+
+.feedback-img {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 14px auto 0;
+  border-radius: 10px;
+}
+
 /* --- Loading --- */
 .loading { text-align: center; padding: 48px 0; }
 .abelha { font-size: 3rem; animation: flutuar 1.6s ease-in-out infinite; }
