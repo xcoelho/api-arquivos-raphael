@@ -1,4 +1,4 @@
-/* ===== QuizBee — estilos ===== */
+/* ===== Quiz - Isis 2.0 — estilos ===== */
 
 :root {
   --cor-fundo: #f4f6fb;
@@ -119,6 +119,17 @@ body {
 }
 .materia-assunto { font-weight: 700; }
 .progresso { color: var(--cor-texto-suave); font-weight: 600; }
+
+.provedor {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid;
+}
+.provedor.google { background: #e8f0fe; color: #1a73e8; border-color: #1a73e8; }
+.provedor.nvidia { background: #f0f9e8; color: #2e7d00; border-color: #76b900; }
 
 .barra-progresso {
   height: 8px;

@@ -1,4 +1,4 @@
-/* ===== QuizBee — lógica do quiz ===== */
+/* ===== Quiz - Isis 2.0 — lógica do quiz ===== */
 "use strict";
 
 (() => {
@@ -126,6 +126,23 @@
     return nivel === "facil" ? "Fácil" : nivel === "medio" ? "Médio" : "Difícil";
   }
 
+  // Selo do provedor que gerou a pergunta atual (google ou nvidia).
+  function atualizarProvedor(provedor) {
+    const el = $("quiz-provedor");
+    if (!provedor) {
+      el.classList.add("escondido");
+      return;
+    }
+    el.classList.remove("escondido");
+    if (provedor === "google") {
+      el.textContent = "G Google";
+      el.className = "provedor google";
+    } else {
+      el.textContent = "N NVIDIA";
+      el.className = "provedor nvidia";
+    }
+  }
+
   // A IA às vezes devolve "a) texto" — remove o prefixo pois o marcador A) já é exibido.
   function limparAlternativa(t) {
     let s = (t || "").trim();
@@ -151,6 +168,7 @@
     // Topo (total fixo em 9, não no que já chegou)
     $("quiz-progresso").textContent = `Pergunta ${indiceAtual + 1} de ${TOTAL_QUESTOES}`;
     $("barra-preenchida").style.width = `${(indiceAtual / TOTAL_QUESTOES) * 100}%`;
+    atualizarProvedor(q.provedor);
 
     // Cabeçalho
     const badge = $("badge-nivel");
@@ -295,6 +313,12 @@
       situacao.textContent = resposta.acertou ? "✅ Acertou" : "❌ Errou";
       cab.appendChild(badge);
       cab.appendChild(situacao);
+      if (q.provedor) {
+        const prov = document.createElement("span");
+        prov.className = `provedor ${q.provedor}`;
+        prov.textContent = q.provedor === "google" ? "G Google" : "N NVIDIA";
+        cab.appendChild(prov);
+      }
       item.appendChild(cab);
 
       const h3 = document.createElement("h3");

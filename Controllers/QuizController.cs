@@ -15,7 +15,8 @@ namespace MeuServidor.Controllers
         List<string> Alternativas,
         int IndiceCorreta,
         string ExplicacaoCurta,
-        string ExplicacaoCompleta);
+        string ExplicacaoCompleta,
+        string Provedor = "");
 
     public record QuizDTO(string Materia, string Assunto, List<QuestaoDTO> Questoes);
 
@@ -223,7 +224,7 @@ namespace MeuServidor.Controllers
 
             var lista = ExtrairQuestoes("{\"questoes\":[" + ExtrairObjeto(texto) + "]}");
             if (lista == null || lista.Count != 1) return null;
-            return lista[0] with { Nivel = nivel };
+            return lista[0] with { Nivel = nivel, Provedor = "google" };
         }
 
         private async Task<QuestaoDTO?> GerarUmaQuestaoViaNvidiaAsync(string apiKey, string materia, string assunto, string nivel, List<string> evitar, int tentativa, CancellationToken ct)
@@ -271,7 +272,7 @@ namespace MeuServidor.Controllers
             if (lista == null || lista.Count != 1) return null;
 
             var q = lista[0];
-            return q with { Nivel = nivel };
+            return q with { Nivel = nivel, Provedor = "nvidia" };
         }
 
         private static string ExtrairObjeto(string texto)
