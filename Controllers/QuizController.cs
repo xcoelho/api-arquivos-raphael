@@ -192,13 +192,15 @@ namespace MeuServidor.Controllers
         private async Task<QuestaoDTO?> GerarUmaQuestaoViaGoogleAsync(string apiKey, string materia, string assunto, string nivel, List<string> evitar, int tentativa, CancellationToken ct)
         {
             var (sistema, usuario) = PromptUmaQuestao(materia, assunto, nivel, evitar, tentativa);
-            var model = Environment.GetEnvironmentVariable("GOOGLE_MODEL") ?? "gemma-3-27b-it";
+            var model = Environment.GetEnvironmentVariable("GOOGLE_MODEL") ?? "gemma-4-26b-a4b-it";
+            // Gemma via Gemini API não aceita system_instruction nem responseMimeType (400):
+            // funde a instrução no texto do usuário e valida o JSON no servidor.
+            var textoUsuario = sistema + "\n\n" + usuario;
 
             var body = new Dictionary<string, object?>
             {
-                ["system_instruction"] = new Dictionary<string, object?> { ["parts"] = new object[] { new Dictionary<string, string> { ["text"] = sistema } } },
-                ["contents"] = new object[] { new Dictionary<string, object?> { ["role"] = "user", ["parts"] = new object[] { new Dictionary<string, string> { ["text"] = usuario } } } },
-                ["generationConfig"] = new Dictionary<string, object?> { ["temperature"] = 0.8, ["topP"] = 0.95, ["maxOutputTokens"] = 1200, ["responseMimeType"] = "application/json" }
+                ["contents"] = new object[] { new Dictionary<string, object?> { ["role"] = "user", ["parts"] = new object[] { new Dictionary<string, string> { ["text"] = textoUsuario } } } },
+                ["generationConfig"] = new Dictionary<string, object?> { ["temperature"] = 0.8, ["topP"] = 0.95, ["maxOutputTokens"] = 1200 }
             };
 
             using var req = new HttpRequestMessage(HttpMethod.Post, $"v1beta/models/{model}:generateContent")
