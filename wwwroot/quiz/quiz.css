@@ -12,6 +12,60 @@
   --cor-borda: #e5e7eb;
   --raio: 14px;
   --sombra: 0 4px 14px rgba(31, 41, 55, 0.08);
+  color-scheme: light;
+}
+
+/* --- Tema escuro --- */
+[data-theme="dark"] {
+  --cor-fundo: #0f1522;
+  --cor-card: #1a2233;
+  --cor-texto: #e8ecf3;
+  --cor-texto-suave: #9aa5b8;
+  --cor-borda: #2c3650;
+  --sombra: 0 4px 14px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+[data-theme="dark"] #form-config select,
+[data-theme="dark"] #form-config input {
+  background: #101828;
+  color: var(--cor-texto);
+}
+[data-theme="dark"] #form-config select:focus,
+[data-theme="dark"] #form-config input:focus {
+  background: #101828;
+}
+[data-theme="dark"] .alternativa {
+  background: #141c2e;
+  color: var(--cor-texto);
+}
+[data-theme="dark"] .alternativa:hover:not(:disabled) { background: #1a2233; }
+[data-theme="dark"] .alternativa.correta,
+[data-theme="dark"] .feedback.acertou,
+[data-theme="dark"] .rev-alt.correta { background: rgba(22, 163, 74, 0.16); }
+[data-theme="dark"] .alternativa.errada,
+[data-theme="dark"] .feedback.errou,
+[data-theme="dark"] .rev-alt.escolhida-errada { background: rgba(220, 38, 38, 0.16); }
+[data-theme="dark"] .revisao-item .explicacao { background: #141c2e; }
+[data-theme="dark"] .provedor.google { background: rgba(26, 115, 232, 0.2); }
+[data-theme="dark"] .provedor.nvidia { background: rgba(118, 185, 0, 0.16); }
+[data-theme="dark"] .provedor.zen { background: rgba(109, 40, 217, 0.22); }
+
+/* --- Botão de tema --- */
+.btn-tema {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 50;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--cor-borda);
+  background: var(--cor-card);
+  color: var(--cor-texto);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--sombra);
 }
 
 * { box-sizing: border-box; }

@@ -34,6 +34,23 @@
 
   const $ = (id) => document.getElementById(id);
 
+  // ---------- Tema claro/escuro ----------
+  const TEMA_KEY = "isis-quiz-tema";
+  function aplicarTema(tema) {
+    document.documentElement.dataset.theme = tema;
+    $("btn-tema").textContent = tema === "dark" ? "☀️" : "🌙";
+    try { localStorage.setItem(TEMA_KEY, tema); } catch { /* modo privado */ }
+  }
+  (function initTema() {
+    let salvo = null;
+    try { salvo = localStorage.getItem(TEMA_KEY); } catch { /* modo privado */ }
+    aplicarTema(salvo === "dark" || salvo === "light" ? salvo
+      : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+  })();
+  $("btn-tema").addEventListener("click", () => {
+    aplicarTema(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+  });
+
   // ---------- Config (1 questão por vez + prefetch) ----------
   async function fetchQuestao(materia, assunto, nivel, evitar) {
     const resp = await fetch("/quiz/question", {
