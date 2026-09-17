@@ -38,6 +38,23 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Redireciona /pasta → /pasta/index.html quando existir (cobre /quiz/, /cronotacografo/ etc.)
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value ?? "";
+    if (path.Length > 1 && HttpMethods.IsGet(context.Request.Method) && !Path.HasExtension(path))
+    {
+        var file = Path.Combine(app.Environment.WebRootPath,
+            path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar), "index.html");
+        if (System.IO.File.Exists(file))
+        {
+            context.Response.Redirect(path.TrimEnd('/') + "/index.html");
+            return;
+        }
+    }
+    await next();
+});
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
